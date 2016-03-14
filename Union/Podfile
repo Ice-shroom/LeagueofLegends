@@ -1,0 +1,12 @@
+pod 'SDWebImage', '~>3.7'
+
+pod 'FMDB'
+
+pod "pop"
+
+pod 'IQKeyboardManager'
+
+pod 'UAProgressView'
+
+platform :ios, '7.0'
+pod "AFNetworking", "~> 2.0"
