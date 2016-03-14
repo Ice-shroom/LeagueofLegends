@@ -2,7 +2,7 @@
 //  GPLoadingView.m
 //  
 //
-//  Created by 李响 on 15/7/13.
+//  Created by 张展 on 15/7/13.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -296,19 +296,24 @@
 #pragma  mark ---即将开始加载视图
 
 - (void)willLoadView{
-
-    //旋转齿轮
-   
-    self.mainGear.transform = CGAffineTransformRotate(self.mainGear.transform, - M_PI_4 / 20 *2);
-
-    self.downGear.transform = CGAffineTransformRotate(self.downGear.transform,  M_PI_4 / 36.0 * 2);
-
-    self.leftGear.transform = CGAffineTransformRotate(self.leftGear.transform, - M_PI_4 / 36.0 * 2);
     
-    self.topGear.transform = CGAffineTransformRotate(self.topGear.transform,  M_PI_4 / 36.0 * 2);
+    //未加载时
     
-    self.rightGear.transform = CGAffineTransformRotate(self.rightGear.transform, - M_PI_4 / 36.0 * 2);
-    
+    if (self.isLoading == NO) {
+        
+        //旋转齿轮
+        
+        self.mainGear.transform = CGAffineTransformRotate(self.mainGear.transform, - M_PI_4 / 20 *2);
+        
+        self.downGear.transform = CGAffineTransformRotate(self.downGear.transform,  M_PI_4 / 36.0 * 2);
+        
+        self.leftGear.transform = CGAffineTransformRotate(self.leftGear.transform, - M_PI_4 / 36.0 * 2);
+        
+        self.topGear.transform = CGAffineTransformRotate(self.topGear.transform,  M_PI_4 / 36.0 * 2);
+        
+        self.rightGear.transform = CGAffineTransformRotate(self.rightGear.transform, - M_PI_4 / 36.0 * 2);
+        
+    }
     
 }
 
@@ -508,57 +513,68 @@
 
 - (void)didLoadView{
     
-    //清空正在加载动画
-    
-    [self removeLoadingAnimations];
-    
-    __block GPLoadingView *Self = self;
-    
-    [UIView animateWithDuration:0.2f animations:^{
+    if (self.isLoading) {
         
-        //放大
+        //清空正在加载动画
         
-        Self.mainGear.transform = CGAffineTransformScale(Self.mainGear.transform , 1.2, 1.2);
+        [self removeLoadingAnimations];
         
-    } completion:^(BOOL finished) {
-       
-        [UIView animateWithDuration:0.5f animations:^{
-           
-           //缩小
+        __block GPLoadingView *Self = self;
+        
+        [UIView animateWithDuration:0.2f animations:^{
             
-            Self.mainGear.transform = CGAffineTransformScale(Self.mainGear.transform , 0.2, 0.2);
+            //放大
+            
+            Self.mainGear.transform = CGAffineTransformScale(Self.mainGear.transform , 1.2, 1.2);
             
         } completion:^(BOOL finished) {
             
-            //调用加载结束的Block
-            
-            Self.didLoadBlock();
-            
-            //还原主齿轮大小
-            
-            Self.mainGear.transform = CGAffineTransformMakeScale ( 1.0, 1.0);
-            
-            //更新正在加载状态
-            
-            Self.isLoading = NO;
-            
-            //旋转角度归0
-            
-            self.mainGear.transform = CGAffineTransformMakeRotation(0);
-            
-            self.downGear.transform = CGAffineTransformMakeRotation(0);
-            
-            self.leftGear.transform = CGAffineTransformMakeRotation(0);
-            
-            self.topGear.transform = CGAffineTransformMakeRotation(0);
-            
-            self.rightGear.transform = CGAffineTransformMakeRotation(0);
-
+            if (finished) {
+                
+                [UIView animateWithDuration:0.5f animations:^{
+                    
+                    //缩小
+                    
+                    Self.mainGear.transform = CGAffineTransformScale(Self.mainGear.transform , 0.2, 0.2);
+                    
+                } completion:^(BOOL finished) {
+                    
+                    if (finished) {
+                        
+                        //调用加载结束的Block
+                        
+                        Self.didLoadBlock();
+                        
+                        //还原主齿轮大小
+                        
+                        Self.mainGear.transform = CGAffineTransformMakeScale ( 1.0, 1.0);
+                        
+                        //更新正在加载状态
+                        
+                        Self.isLoading = NO;
+                        
+                        //旋转角度归0
+                        
+                        self.mainGear.transform = CGAffineTransformMakeRotation(0);
+                        
+                        self.downGear.transform = CGAffineTransformMakeRotation(0);
+                        
+                        self.leftGear.transform = CGAffineTransformMakeRotation(0);
+                        
+                        self.topGear.transform = CGAffineTransformMakeRotation(0);
+                        
+                        self.rightGear.transform = CGAffineTransformMakeRotation(0);
+                        
+                    }
+                    
+                }];
+                
+            }
             
         }];
+
         
-    }];
-    
+    }
     
 }
 
@@ -569,47 +585,55 @@
 
 - (void)errorLoadView{
     
-    //清空正在加载动画
-    
-    [self removeLoadingAnimations];
-    
-    //抖动动画
-    
-    CAKeyframeAnimation *erroranim=[CAKeyframeAnimation animation];
-    
-    erroranim.keyPath=@"transform.rotation";
-    
-    erroranim.values=@[@(angelToRandian(-7)),@(angelToRandian(7)),@(angelToRandian(-7))];
-    
-    erroranim.repeatCount=20;
-    
-    erroranim.duration=0.1;
-    
-    [self.mainGear.layer addAnimation:erroranim forKey:@"errorAnimation"];
-    
-    
-    __block GPLoadingView *Self = self;
+    if (self.isLoading) {
+        
+        //清空正在加载动画
+        
+        [self removeLoadingAnimations];
+        
+        //抖动动画
+        
+        CAKeyframeAnimation *erroranim=[CAKeyframeAnimation animation];
+        
+        erroranim.keyPath=@"transform.rotation";
+        
+        erroranim.values=@[@(angelToRandian(-7)),@(angelToRandian(7)),@(angelToRandian(-7))];
+        
+        erroranim.repeatCount=20;
+        
+        erroranim.duration=0.1;
+        
+        [self.mainGear.layer addAnimation:erroranim forKey:@"errorAnimation"];
+        
+        
+        __block GPLoadingView *Self = self;
+        
+        [UIView animateWithDuration:1.0f animations:^{
+            
+            [UIView setAnimationDelay:1.0f];
+            
+            //移动错误视图 (达到延迟1秒的目的)
+            
+            Self.errolView.center = CGPointMake( 0 - 20, 0 - 20);
+            
+        } completion:^(BOOL finished) {
+            
+            if (finished) {
+                
+                [Self didLoadView];
+                
+                //还原错误视图初始位置
+                
+                Self.errolView.center = CGPointMake( 0 - 10, 0 - 10);
+                
+                //此处添加提示框
+                
+            }
+            
+        }];
 
-    [UIView animateWithDuration:1.0f animations:^{
         
-        [UIView setAnimationDelay:1.0f];
-        
-        //移动错误视图 (达到延迟1秒的目的)
-        
-        Self.errolView.center = CGPointMake( 0 - 20, 0 - 20);
-        
-    } completion:^(BOOL finished) {
-        
-        [Self didLoadView];
-        
-        //还原错误视图初始位置
-        
-        Self.errolView.center = CGPointMake( 0 - 10, 0 - 10);
-        
-        //此处添加提示框 提示网络蛋疼 加载失败
-        
-    }];
-
+    }
     
 }
 

@@ -2,7 +2,7 @@
 //  EncyItemView.m
 //  Union
 //
-//  Created by 李响 on 15/8/4.
+//  Created by 张展 on 15/8/4.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -42,6 +42,8 @@
         
         _label.textAlignment = NSTextAlignmentCenter;
         
+        _label.font = [UIFont systemFontOfSize:14];
+        
         [self addSubview:_label];
         
     }
@@ -56,9 +58,9 @@
     
     [super layoutSubviews];
     
-    self.imageView.frame = CGRectMake(30, 10, CGRectGetWidth(self.frame) - 60, CGRectGetWidth(self.frame) - 60);
+    self.imageView.frame = CGRectMake(CGRectGetWidth(self.frame) / 7, CGRectGetWidth(self.frame) / 7, CGRectGetWidth(self.frame) / 7 * 5, CGRectGetWidth(self.frame)  / 7 * 5);
     
-    self.label.frame = CGRectMake(0, CGRectGetWidth(self.frame) - 50 , CGRectGetWidth(self.frame) , 40);
+    self.label.frame = CGRectMake(0, CGRectGetWidth(self.frame)  / 7 * 6 , CGRectGetWidth(self.frame) , CGRectGetWidth(self.frame) / 7);
     
 }
 
@@ -74,7 +76,7 @@
 
     //赋值数据
     
-    self.imageView.image = [UIImage imageNamed:model.iconName];
+    self.imageView.image = [[UIImage imageNamed:model.iconName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     
     self.label.text = model.name;
     

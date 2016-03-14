@@ -2,7 +2,7 @@
 //  Union_Hero_ViewController.m
 //  Union
 //
-//  Created by 李响 on 15/7/13.
+//  Created by 张展 on 15/7/13.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -62,18 +62,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    self.view.backgroundColor = [UIColor whiteColor];
-    
     self.title = @"英雄";
-    
-    //添加导航栏左按钮
-    
-    UIBarButtonItem *leftBarButton = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-fanhui"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(leftBarButtonAction:)];
-    
-    leftBarButton.tintColor = [UIColor whiteColor];
-    
-    self.navigationItem.leftBarButtonItem = leftBarButton;
-    
     
     //添加标签导航栏视图
     
@@ -231,8 +220,10 @@
 
 - (void)showHeroDetailWithHeroName:(NSString *)heroName{
     
-    [self presentViewController:self.HDVC animated:YES completion:^{
+    [self presentViewController:self.HDVC animated:NO completion:^{
         
+        self.HDVC.enHeroName = heroName;
+    
     }];
     
 }
@@ -240,7 +231,11 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
+    //清空内存中的图片缓存
+    
+    [[SDImageCache sharedImageCache] clearMemory];
+    
 }
 
 /*
@@ -252,15 +247,6 @@
     // Pass the selected object to the new view controller.
 }
 */
-
-
-#pragma mark ---leftBarButtonAction
-
-- (void)leftBarButtonAction:(UIBarButtonItem *)sender{
-    
-    [self.navigationController popViewControllerAnimated:YES];
-    
-}
 
 
 #pragma mark - UIViewControllerTransitioningDelegate

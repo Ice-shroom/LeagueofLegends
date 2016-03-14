@@ -7,7 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+
 #import "GearPowered.h"
+
 typedef void (^myBlock) (NSString *tag , NSString *name);
 
 typedef void (^VideoSearchBlock)(NSString *videoName);

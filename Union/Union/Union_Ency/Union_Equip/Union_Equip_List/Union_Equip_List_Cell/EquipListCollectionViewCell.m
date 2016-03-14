@@ -2,7 +2,7 @@
 //  EquipListCollectionViewCell.m
 //  Union
 //
-//  Created by 李响 on 15/8/4.
+//  Created by 张展 on 15/8/4.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -42,7 +42,7 @@
         
         _picImageView = [[UIImageView alloc]init];
         
-        _picImageView.layer.cornerRadius = 8;
+        _picImageView.layer.cornerRadius = 8.0f;
         
         _picImageView.clipsToBounds = YES;
         
@@ -93,11 +93,11 @@
         
         //拼接装备图片url
         
-        NSString *picURL = [NSString stringWithFormat:kUnion_Equip_ListImageURL , model.eid];
+        NSString *picURL = [NSString stringWithFormat:kUnion_Equip_ListImageURL , (long)model.eid];
         
         //SDWebImage 异步请求加载装备图片 <根据装备ID为参数>
         
-        [_picImageView sd_setImageWithURL:[NSURL URLWithString:picURL] placeholderImage:[UIImage imageNamed:@""]];
+        [_picImageView sd_setImageWithURL:[NSURL URLWithString:picURL] placeholderImage:[UIImage imageNamed:@"poluoimage_gray"]];
         
         //添加装备标题
         

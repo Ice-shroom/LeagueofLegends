@@ -14,8 +14,6 @@
 
 #import "SortModel.h"
 
-#import "UIImageView+WebCache.h"
-
 #import "SortCollectionReusableView.h"
 
 #import "LoadingView.h"
@@ -126,7 +124,7 @@
     
     //查询本地缓存 指定数据名
     
-    id caCheData = [[DataCache shareDataCache] getDataForDocumentWithDataName:@"VideoSortData"];
+    id caCheData = [[DataCache shareDataCache] getDataForDocumentWithDataName:@"VideoSortData" Classify:@"Video"];
     
     if (caCheData == nil) {
         
@@ -167,7 +165,7 @@
             
             //将数据缓存到本地 指定数据名
             
-            [[DataCache shareDataCache] saveDataForDocumentWithData:responseObject DataName:@"VideoSortData"];
+            [[DataCache shareDataCache] saveDataForDocumentWithData:responseObject DataName:@"VideoSortData" Classify:@"Video"];
             
         } else {
             
@@ -185,7 +183,7 @@
         
         if (self.dataArray.count > 0 ) {
             
-            [UIView addLXNotifierWithText:@"加载失败 快看看网络去哪了" dismissAutomatically:NO];
+            [UIView addLXNotifierWithText:@"加载失败 快看看网络去哪了" dismissAutomatically:YES];
             
         } else {
             
@@ -263,9 +261,11 @@
         
         _reloadImageView.center = CGPointMake(CGRectGetWidth(self.frame) / 2 , CGRectGetHeight(self.frame) / 2);
         
-        _reloadImageView.image = [UIImage imageNamed:@""];
+        _reloadImageView.image = [[UIImage imageNamed:@"reloadImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
-        _reloadImageView.backgroundColor = [UIColor lightGrayColor];
+        _reloadImageView.tintColor = [UIColor lightGrayColor];
+        
+        _reloadImageView.backgroundColor = [UIColor clearColor];
         
         [_reloadImageView addGestureRecognizer:reloadImageViewTap];
         
@@ -273,7 +273,7 @@
         
         _reloadImageView.userInteractionEnabled = YES;
         
-        [self.superview addSubview:_reloadImageView];
+        [self addSubview:_reloadImageView];
         
         
     }
@@ -361,11 +361,6 @@
     SortCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"CELL" forIndexPath:indexPath];
     
     cell.sortModel = self.dataArray[indexPath.section][indexPath.row];
-    
-    NSURL *picUrl = [NSURL URLWithString:[self.dataArray[indexPath.section][indexPath.row] icon]];
-        
-    [cell.imageView sd_setImageWithURL:picUrl];
-        
 
     return cell;
 }
@@ -450,7 +445,8 @@
     
 }
 
-//给一个点击方法
+//点击方法
+
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
 
     SortModel *model = self.dataArray[indexPath.section][indexPath.row];
@@ -458,23 +454,6 @@
     self.block(model.tag , model.name);
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

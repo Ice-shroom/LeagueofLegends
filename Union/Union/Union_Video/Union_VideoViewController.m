@@ -2,7 +2,7 @@
 //  Union_VideoViewController.m
 //  Union
 //
-//  Created by 李响 on 15/6/30.
+//  Created by 张展 on 15/6/30.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -22,7 +22,10 @@
 
 #import "DownloadView.h"
 
-#import "VideoPlayerViewController.h"
+#import "AppDelegate.h"
+
+
+#import <MobClick.h>
 
 @interface Union_VideoViewController ()
 
@@ -32,14 +35,7 @@
 
 @property (nonatomic , retain) Union_Video_VideoListTableView *newView;//最新视图
 
-@property (nonatomic ,retain) DownloadViewController *download;//导航栏下载按钮
-
-@property (nonatomic ,retain) DownloadView *downloadView;//移动下载按钮
-
-
 @property (nonatomic ,retain) VideoListViewController *videoListVC;//视频列表视图控制器
-
-@property (nonatomic ,retain) VideoPlayerViewController *videoPlayerVC;//视频播放视图控制器
 
 @end
 
@@ -53,7 +49,7 @@
     
     [_sortView release];
     
-    [_downloadView release];
+    [_videoListVC release];
     
     [super dealloc];
 
@@ -62,6 +58,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
     
     self.view.backgroundColor = [UIColor whiteColor];
     
@@ -80,30 +77,42 @@
         [Self switchViewBySelectIndex:selectIndex];
     
     };
-//    添加分类视图
+    
+    //添加分类视图
     
     [self.view addSubview:self.sortView];
     
-//    添加最新视图
+    //添加最新视图
     
     [self.view addSubview:self.newView];
     
-//    默认显示分类视图
+    //默认显示分类视图
     
     self.tabView.selectIndex = 0;
     
-//    默认sortView在最上方
+    //默认sortView在最上方
     
     [self.view bringSubviewToFront:self.sortView];
     
-//    调用navigationButton方法
     
-    [self navigationButton];
+    //获取在线参数判断是否显示下载
     
-//     调用moveView方法
+    BOOL isShowDownLoad = [[MobClick getConfigParams:@"isShowDownLoad"] boolValue];
     
-    [self moveView];
-    
+    if (isShowDownLoad) {
+        
+        //调用navigationButton方法
+        
+        [self navigationButton];
+        
+    } else {
+        
+        //清除右导航按钮
+        
+        self.navigationItem.rightBarButtonItem = nil;
+        
+    }
+        
 }
 
 
@@ -112,7 +121,7 @@
 
 -(void)navigationButton{
     
-    UIBarButtonItem *rightButtonItem = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-xiazai"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(handle:)];
+    UIBarButtonItem *rightButtonItem = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-xiazai"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(rightButtonAction:)];
     
     rightButtonItem.tintColor = [UIColor whiteColor];
     
@@ -120,53 +129,20 @@
 
 }
 
-#pragma  mark ----懒加载下载按钮
-
--(DownloadViewController *)download{
-
-    if (_download == nil) {
-        
-        _download = [[DownloadViewController alloc]init];
-        
-    }
-
-    return _download;
-
-}
 
 
-#pragma  mark-----移动下载按钮
 
--(void)moveView{
+
+#pragma mark ---下载按钮响应事件
+
+-(void)rightButtonAction:(UIBarButtonItem *)sender{
     
-    self.downloadView = [[DownloadView alloc]initWithFrame:CGRectMake(CGRectGetWidth(self.view.frame) - 70 , self.view.frame.size.height - 170, 50, 50)];
+    //调用打开下载视图控制器方法
     
-    self.downloadView.backgroundColor = [MAINCOLOER colorWithAlphaComponent:0.6];
+    AppDelegate *app = [UIApplication sharedApplication].delegate;
     
-    [self.view addSubview:self.downloadView];
-    
-    [self.view bringSubviewToFront:self.downloadView];
-    
-    __block Union_VideoViewController *Self = self;
-    
-    _downloadView.downLoadBlock = ^(){
-        
-        [Self.navigationController pushViewController:self.download animated:YES];
-        
-    };
-    
-}
+    [app openDownloadVC];
 
-
-
-
-//下载按钮的实现方法
-
--(void)handle:(UIBarButtonItem *)sender{
-    
-    self.download.hidesBottomBarWhenPushed = YES;//隐藏tabbar
-    
-    [self.navigationController pushViewController:self.download animated:YES];
 
 }
 
@@ -201,8 +177,6 @@
             
             [self.view bringSubviewToFront:self.sortView];
             
-            [self.view bringSubviewToFront:self.downloadView];
-            
             break;
             
         case 1:
@@ -211,8 +185,6 @@
             //最新视图
             
             [self.view bringSubviewToFront:self.newView];
-        
-            [self.view bringSubviewToFront:self.downloadView];
             
         }
             break;
@@ -228,7 +200,11 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
+    //清空内存中的图片缓存
+    
+    [[SDImageCache sharedImageCache] clearMemory];
+    
 }
 
 /*
@@ -249,25 +225,25 @@
         
         UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc]init];
         
-//        设置单元格大小
+        //设置单元格大小
         
-        flowLayout.itemSize = CGSizeMake( ( CGRectGetWidth(self.view.frame) - 35 ) /4 , ( CGRectGetWidth(self.view.frame) - 35 ) /4 + 20);
+        flowLayout.itemSize = CGSizeMake( ( CGRectGetWidth(self.view.frame) - 50 ) /4 , ( CGRectGetWidth(self.view.frame) - 50 ) /4 + 20);
         
-//        设置最小左右间距 ，单元格之间
+        //设置最小左右间距 ，单元格之间
         
-        flowLayout.minimumInteritemSpacing =5;
+        flowLayout.minimumInteritemSpacing = 10;
         
-//        设置最小上下间距
+        //设置最小上下间距
         
-        flowLayout.minimumLineSpacing = 0;
+        flowLayout.minimumLineSpacing = 10;
         
-//       设置滑动方向
+        //设置滑动方向
         
         flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
         
-//        设置cell的边界范围
+        //设置cell的边界范围
         
-        flowLayout.sectionInset = UIEdgeInsetsMake(5, 5, 5, 5);
+        flowLayout.sectionInset = UIEdgeInsetsMake(10 , 10 , 10 , 10 );
         
         _sortView = [[Union_Video_SortCollectionView alloc]initWithFrame:CGRectMake(0, 40, self.view.frame.size.width, self.view.frame.size.height - 40 - 113) collectionViewLayout:flowLayout];
         
@@ -324,21 +300,7 @@
         
         _newView.urlStr = kUnion_Video_NewURL;
         
-        __block Union_VideoViewController *Self = self;
-        
-        _newView.selectedVideoBlock = ^(NSMutableArray *videoArray , NSString *videoTitle){
-            
-            Self.videoPlayerVC.videoArray = videoArray;
-            
-            Self.videoPlayerVC.videoTitle = videoTitle;
-            
-            //跳转视频播放视图控制器
-            
-            [Self presentViewController:Self.videoPlayerVC animated:YES completion:^{
-
-            }];
-            
-        };
+        _newView.rootVC = self;
         
     }
 
@@ -355,18 +317,6 @@
     }
     
     return _videoListVC;
-    
-}
-
--(VideoPlayerViewController *)videoPlayerVC{
-    
-    if (_videoPlayerVC == nil) {
-        
-        _videoPlayerVC = [[VideoPlayerViewController alloc]init];
-        
-    }
-    
-    return _videoPlayerVC;
     
 }
 

@@ -2,7 +2,7 @@
 //  LoadingView.m
 //  Union
 //
-//  Created by 李响 on 15/7/25.
+//  Created by 张展 on 15/7/25.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -45,7 +45,7 @@
         
         _mainGear = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 70, 70)];
         
-        _mainGear.center = CGPointMake(CGRectGetWidth(self.frame) / 2 , CGRectGetHeight(self.frame) / 2);
+        _mainGear.center = CGPointMake(CGRectGetWidth(self.frame) / 2 , CGRectGetHeight(self.frame) / 2 );
         
         _mainGear.image = [[UIImage imageNamed:@"maingear"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         

@@ -2,8 +2,8 @@
 //  LXCollectionViewFlowLayout.m
 // 
 //
-//  Created by 李响 on 15/6/6.
-//  Copyright (c) 2015年 李响. All rights reserved.
+//  Created by 张展 on 15/6/6.
+//  Copyright (c) 2015年 张展. All rights reserved.
 //
 
 #import "LXCollectionViewFlowLayout.h"

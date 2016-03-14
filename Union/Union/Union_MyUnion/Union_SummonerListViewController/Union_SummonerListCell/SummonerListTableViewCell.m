@@ -2,7 +2,7 @@
 //  SummonerListTableViewCell.m
 //  Union
 //
-//  Created by 李响 on 15/7/20.
+//  Created by 张展 on 15/7/20.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -115,9 +115,7 @@
         
         UIView *levelView = [[UIView alloc]initWithFrame:CGRectMake(42, 42, 16, 16)];
         
-        levelView.layer.cornerRadius = 8;
-        
-        levelView.backgroundColor = MAINCOLOER;
+        levelView.backgroundColor = [[UIColor blackColor]colorWithAlphaComponent:0.6];
         
         [_picImageView addSubview:levelView];
         
@@ -188,11 +186,11 @@
         
         //初始化战斗力
         
-        _zdlImageView = [[UIImageView alloc]initWithFrame:CGRectMake(150, 60, 10 , 10)];
+        _zdlImageView = [[UIImageView alloc]initWithFrame:CGRectMake(150, 60, 12 , 12)];
         
         _zdlImageView.tintColor = MAINCOLOER;
         
-        _zdlImageView.image = [[UIImage imageNamed:@"iconfont-dacumojian"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        _zdlImageView.image = [[UIImage imageNamed:@"iconfont-zhandou"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
         _zdlImageView.backgroundColor = [UIColor clearColor];
         
@@ -351,7 +349,7 @@
     
     _tierDescLabel.text = summonerModel.tierDesc;
     
-    _zdlLabel.text = [NSString stringWithFormat:@"%ld" , summonerModel.zdl];
+    _zdlLabel.text = [NSString stringWithFormat:@"%ld" , (long)summonerModel.zdl];
     
     _levelLabel.text = summonerModel.level;
     

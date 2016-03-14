@@ -2,7 +2,7 @@
 //  MyUnion_UserTableViewCell.m
 //  Union
 //
-//  Created by 李响 on 15/7/20.
+//  Created by 张展 on 15/7/20.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -118,7 +118,9 @@
         
         //初始化头像图片
         
-        _picImageView = [[UIImageView alloc]initWithFrame:CGRectMake(15, 20, 60, 60)];
+        _picImageView = [[UIImageView alloc]initWithFrame:CGRectMake(15, 10, 60, 60)];
+        
+        _picImageView.image = [UIImage imageNamed:@"poluoimage_gray"];
         
         _picImageView.layer.cornerRadius = 30;
         
@@ -130,7 +132,7 @@
         
         //初始化等级
         
-        UIView *levelView = [[UIView alloc]initWithFrame:CGRectMake(58, 60, 20, 20)];
+        UIView *levelView = [[UIView alloc]initWithFrame:CGRectMake(58, 55, 20, 20)];
         
         levelView.layer.cornerRadius = 10;
         
@@ -222,7 +224,7 @@
         
         //初始化提示标签
         
-        _promptLabel = [[UILabel alloc]initWithFrame:CGRectMake(80, 35, CGRectGetWidth(self.frame) - 160, 30)];
+        _promptLabel = [[UILabel alloc]initWithFrame:CGRectMake(80, 30, CGRectGetWidth(self.frame) - 160, 30)];
         
         _promptLabel.textColor = [UIColor whiteColor];
         
@@ -314,9 +316,9 @@
         
         if (_summonerName == nil && _serverName == nil) {
             
-            _summonerName = @"";
+            self.summonerName = @"";
             
-            _serverName = @"";
+            self.serverName = @"";
             
         }
         
@@ -325,9 +327,9 @@
             _zdlView.center = CGPointMake(CGRectGetWidth(self.frame) + 20, CGRectGetHeight(self.frame) / 2);
             
             
-            _summonerName = summonerStr;
+            self.summonerName = summonerStr;
             
-            _serverName = serverNameStr;
+            self.serverName = serverNameStr;
             
             
             //查询数据库 获取召唤师信息
@@ -348,7 +350,7 @@
                 
                 _tierDescLabel.text = _summonerModel.tierDesc;
                 
-                _zdlLabel.text = [NSString stringWithFormat:@"%ld" , _summonerModel.zdl];
+                _zdlLabel.text = [NSString stringWithFormat:@"%ld" , (long)_summonerModel.zdl];
                 
                 _levelLabel.text = _summonerModel.level;
                 
@@ -379,7 +381,7 @@
 
 - (void)hiddenViews{
     
-    _picImageView.image = [UIImage imageNamed:@""];
+    _picImageView.image = [UIImage imageNamed:@"poluoimage_gray"];
     
     _serverFullNameLabel.hidden = YES;
     

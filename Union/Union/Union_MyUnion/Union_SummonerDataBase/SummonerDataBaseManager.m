@@ -2,7 +2,7 @@
 //  SummonerDataBaseManager.m
 //  Union
 //
-//  Created by 李响 on 15/7/20.
+//  Created by 张展 on 15/7/20.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -122,7 +122,6 @@
     
     return dataArray;
 
-    
 }
 
 //根据召唤师ID查询
@@ -139,7 +138,7 @@
         
         //得到结果集
         
-        FMResultSet *set = [self.db executeQuery:[NSString stringWithFormat:@"SELECT * FROM t_summoner  WHERE sid = %ld ;", sID]];
+        FMResultSet *set = [self.db executeQuery:[NSString stringWithFormat:@"SELECT * FROM t_summoner  WHERE sid = %ld ;", (long)sID]];
         
         while (set.next) {
             
@@ -168,6 +167,7 @@
             item.tierDesc = [set stringForColumn:@"tierDesc"];
             
             item.leaguePoints = [[set stringForColumn:@"leaguePoints"] integerValue];
+            
             
         }
         
@@ -234,7 +234,7 @@
 
 - (BOOL)insertSummoner:(SummonerModel *)summonerModel{
     
-    NSString *sqlStr = [NSString stringWithFormat:@"INSERT INTO 't_summoner' ( 'serverName' , 'serverFullName' , 'summonerName' , 'level' , 'icon' , 'zdl' , 'tier' , 'rank' , 'tierDesc', 'leaguePoints') VALUES ( '%@' , '%@' , '%@' , '%@' , '%@' , %ld , %ld , %ld , '%@' , %ld );", summonerModel.serverName , summonerModel.serverFullName , summonerModel.summonerName , summonerModel.level , summonerModel.icon , summonerModel.zdl , summonerModel.tier , summonerModel.rank , summonerModel.tierDesc , summonerModel.leaguePoints];
+    NSString *sqlStr = [NSString stringWithFormat:@"INSERT INTO 't_summoner' ( 'serverName' , 'serverFullName' , 'summonerName' , 'level' , 'icon' , 'zdl' , 'tier' , 'rank' , 'tierDesc', 'leaguePoints') VALUES ( '%@' , '%@' , '%@' , '%@' , '%@' , %ld , %ld , %ld , '%@' , %ld );", summonerModel.serverName , summonerModel.serverFullName , summonerModel.summonerName , summonerModel.level , summonerModel.icon , (long)summonerModel.zdl , (long)summonerModel.tier , (long)summonerModel.rank , summonerModel.tierDesc , (long)summonerModel.leaguePoints];
     
     return [self.db executeUpdate:sqlStr];
     
@@ -244,7 +244,7 @@
 
 - (BOOL)deleteSummoner:(NSInteger)sID{
     
-    NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 't_summoner' WHERE sid = %ld ;" , sID];
+    NSString *sqlStr = [NSString stringWithFormat:@"DELETE FROM 't_summoner' WHERE sid = %ld ;" , (long)sID];
     
     return [self.db executeUpdate:sqlStr];
     
@@ -263,7 +263,7 @@
 
 - (BOOL)updateSummonerWithSID:(SummonerModel *)summonerModel{
     
-    NSString *sqlStr = [NSString stringWithFormat:@"UPDATE 't_summoner' SET 'level' = '%@' , 'icon' = '%@' ,'zdl' = %ld , 'tier' = %ld ,'rank' = %ld , 'tierDesc' = '%@' , 'leaguePoints' = %ld  WHERE 'sid' = %ld;" , summonerModel.level , summonerModel.icon , summonerModel.zdl , summonerModel.tier , summonerModel.rank , summonerModel.tierDesc , summonerModel.leaguePoints , summonerModel.sID];
+    NSString *sqlStr = [NSString stringWithFormat:@"UPDATE 't_summoner' SET 'level' = '%@' , 'icon' = '%@' ,'zdl' = %ld , 'tier' = %ld ,'rank' = %ld , 'tierDesc' = '%@' , 'leaguePoints' = %ld  WHERE 'sid' = %ld;" , summonerModel.level , summonerModel.icon , (long)summonerModel.zdl , (long)summonerModel.tier , (long)summonerModel.rank , summonerModel.tierDesc , (long)summonerModel.leaguePoints , (long)summonerModel.sID];
     
     return [self.db executeUpdate:sqlStr];
     

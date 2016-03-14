@@ -2,7 +2,7 @@
 //  GearPowered.h
 //  
 //
-//  Created by 李响 on 15/7/13.
+//  Created by 张展 on 15/7/13.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -30,9 +30,9 @@
 
 @property (nonatomic , retain) NSURL *bottomUrl;//底部刷新请求的URL
 
-@property (nonatomic , assign)BOOL isAuxiliaryGear;//是否在加载时显示辅助齿轮(默认为NO)
+@property (nonatomic , assign) BOOL isAuxiliaryGear;//是否在加载时显示辅助齿轮(默认为NO)
 
-@property (nonatomic , assign)id<GearPoweredDelegate> delegate;//代理对象
+@property (nonatomic , assign) id<GearPoweredDelegate> delegate;//代理对象
 
 
 
@@ -43,5 +43,10 @@
 //滑动停止
 
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate;
+
+//停止加载
+
+-(void)stopLoading;
+
 
 @end

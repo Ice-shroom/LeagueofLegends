@@ -24,8 +24,12 @@
 
 #import "CoreStatus.h"
 
+#import "LXAlertViewController.h"
 
-@interface Union_Video_VideoListTableView ()<UITableViewDataSource,UITableViewDelegate,UIAlertViewDelegate,GearPoweredDelegate>
+#import "VideoPlayerViewController.h"
+
+
+@interface Union_Video_VideoListTableView ()<UITableViewDataSource,UITableViewDelegate,UIAlertViewDelegate,GearPoweredDelegate,LXAlertViewDelegate>
 
 @property (nonatomic ,retain) NSMutableArray *tableArray;//数据原数组
 
@@ -44,6 +48,11 @@
 @property (nonatomic ,retain) UIImageView *reloadImageView;//重新加载图片视图
 
 @property (nonatomic , retain) AFHTTPRequestOperationManager *manager;//AFNetWorking
+
+
+@property (nonatomic , retain ) VideoPlayerViewController *videoPlayerVC;//视频播放视图控制器
+
+@property (nonatomic , retain ) LXAlertViewController *lxAlertViewController;//提示视图控制器
 
 @end
 
@@ -65,6 +74,10 @@
     [_loadingView release];
     
     [_manager release];
+    
+    [_videoPlayerVC release];
+    
+    [_lxAlertViewController release];
     
     [super dealloc];
     
@@ -116,19 +129,6 @@
         _gearPowered.delegate = self;//设置代理
         
         
-        //初始化加载视图
-        
-        _loadingView = [[LoadingView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))];
-        
-        _loadingView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
-        
-        _loadingView.loadingColor = [UIColor whiteColor];
-        
-        _loadingView.hidden = YES;//默认隐藏
-        
-        [self addSubview:_loadingView];
-        
-        [self bringSubviewToFront:_loadingView];
         
     }
 
@@ -158,10 +158,10 @@
         _urlStr = [urlStr retain];
         
     }
-
-    _gearPowered.url = [NSURL URLWithString:[[NSString stringWithFormat:urlStr ,self.page] URLEncodedString]];//设置上拉刷新
     
-    _gearPowered.bottomUrl = [NSURL URLWithString:[[NSString stringWithFormat:urlStr ,self.page] URLEncodedString]];
+    _gearPowered.url = [NSURL URLWithString:[[NSString stringWithFormat:urlStr ,self.page] URLEncodedString]];//设置下拉刷新
+    
+    _gearPowered.bottomUrl = [NSURL URLWithString:[[NSString stringWithFormat:urlStr ,self.page] URLEncodedString]];//设置上拉加载
     
     
     //加载数据
@@ -173,7 +173,6 @@
 #pragma mark ---加载数据
 
 -(void)loadData{
-    
     
     //显示加载视图
     
@@ -280,7 +279,7 @@
             [self.tableArray addObject:vlModel];
             
         }
-    
+        
         //刷新数据
         
         [self reloadData];
@@ -289,26 +288,6 @@
 
 }
 
-#pragma mark---实现UITableViewDataSource，UITableViewDelegate方法
-
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-
-    return self.tableArray.count;
-}
-
--(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-  
-    VideoListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CELL" forIndexPath:indexPath];
-    
-    cell.frame = CGRectMake(0, 0, CGRectGetWidth(tableView.frame), 90);
-    
-    //给cell的数据模型赋值
-    
-    cell.Model = self.tableArray[indexPath.row];
-    
-    return cell;
-    
-}
 
 #pragma mark-----cell选中
 
@@ -340,10 +319,9 @@
             
         } else {
             
+            //跳转视频播放视图控制器播放视频
             
-            //调用选中视频cellBlock传递视频详情数组
-            
-            self.selectedVideoBlock(self.videoArray , model.title);
+            [self playVideoToVPVC:self.videoArray VideoTitle:model.title];
             
         }
 
@@ -352,13 +330,94 @@
         
         //给出非Wifi网络提示 确认是否继续播放
         
-        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:nil message:@"您正处于非Wifi网络\n是否任性观看?" delegate:self cancelButtonTitle:@"算了" otherButtonTitles:@"任性", nil];
+        __block typeof(self.rootVC) VC = self.rootVC;
         
-        [alertView show];
+        [self.lxAlertViewController showView:VC];
+        
+        self.lxAlertViewController.alertTitle = @"您现在没有WiFi网络\n是否任性观看?";
+        
+        self.lxAlertViewController.againAlertTitle = @"注意您的流量哟\n土豪!";
+        
+        self.lxAlertViewController.successAlertTitle = @"马上为您播放..";
+        
+        self.lxAlertViewController.positiveTitle = @"任性";
+        
+        self.lxAlertViewController.negativeTitle = @"算了";
+        
+        self.lxAlertViewController.alertColor = [UIColor colorWithRed:85/255.0 green:129/255.0 blue:226/255.0 alpha:1.0f];
+        
+        self.lxAlertViewController.positiveColor = [UIColor colorWithRed:55/255.0 green:99/255.0 blue:196/255.0 alpha:1.0f];
+        
+        self.lxAlertViewController.negativeColor = [UIColor colorWithRed:70/255.0 green:114/255.0 blue:211/255.0 alpha:1.0f];
+
         
     }
     
 }
+
+#pragma mark ---LXAlertViewDelegate
+
+-(void)positiveButtonAction:(BOOL)isYes{
+    
+    if (isYes) {
+        
+        __block typeof(self) Self = self;
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            
+            //播放
+            
+            VideoListModel *model = Self.tableArray[_selectedCellIndex];
+            
+            //判断是否为上一次选中的cell 如果是 则不再请求数据 直接跳转
+            
+            if (_lastSelectedCellIndex != _selectedCellIndex) {
+                
+                //请求视频详情数据
+                
+                [Self netWorkingGetVideoDetailsWithVID:model.vid Title:model.title];
+                
+                _lastSelectedCellIndex = _selectedCellIndex;
+                
+            } else {
+                
+                //跳转视频播放视图控制器播放视频
+                
+                [self playVideoToVPVC:self.videoArray VideoTitle:model.title];
+                
+            }
+
+            
+        });
+        
+        //清空提示视图控制器
+        
+        [self closeButtonAction];
+        
+    }
+    
+}
+
+-(void)negativeButtonAction{
+    
+    //清空提示视图控制器
+    
+    [_lxAlertViewController release];
+    
+    _lxAlertViewController = nil;
+    
+}
+
+-(void)closeButtonAction{
+    
+    //清空提示视图控制器
+    
+    [_lxAlertViewController release];
+    
+    _lxAlertViewController = nil;
+    
+}
+
 
 #pragma mark ---UIAlertViewDelegate
 
@@ -413,9 +472,6 @@
 
 - (void)netWorkingGetVideoDetailsWithVID:(NSString *)vid Title:(NSString *)title{
     
-    
-    
-    
     //显示加载视图
     
     self.loadingView.hidden = NO;
@@ -430,28 +486,35 @@
     
     [self.manager GET:[[NSString stringWithFormat:kUnion_VideoDetailsURL , vid] URLEncodedString] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-        //解析视频详情数据
+        if (responseObject != nil) {
+            
+            //解析视频详情数据
+            
+            [Self JSONSerializationVideoDetailsWithData:responseObject];
+            
+            //跳转视频播放视图控制器播放视频
+            
+            [Self playVideoToVPVC:Self.videoArray VideoTitle: title];
+            
+            //隐藏加载视图
+            
+            Self.loadingView.hidden = YES;
+            
+        }
         
-        [Self JSONSerializationVideoDetailsWithData:responseObject];
         
-        //调用选中视频cellBlock传递视频详情数组
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
-        Self.selectedVideoBlock(Self.videoArray , title);
+        [UIView addLXNotifierWithText:@"加载失败 快看看网络去哪了" dismissAutomatically:YES];
         
         //隐藏加载视图
         
         Self.loadingView.hidden = YES;
         
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        
-        [UIView addLXNotifierWithText:@"加载失败 快看看网络去哪了" dismissAutomatically:NO];
-        
     }];
 
     
 }
-
 
 #pragma mark ---解析视频详情数据
 
@@ -511,49 +574,69 @@
             return [obj1.definition integerValue] > [obj2.definition integerValue];
             
         }];
-        
-        
 
     }
     
 }
 
-#pragma mark-----设置cell的高度
-
--(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
 
 
-    return 90;
+#pragma mark ---跳转视频播放视图控制器
 
-}
-
-#pragma mark ---时间格式转换 将秒转换成指定格式字符串
-
-- (NSString *)getStringWithTime:(NSInteger)time{
+- (void)playVideoToVPVC:(NSMutableArray *) videoArray VideoTitle:(NSString *)videoTitle{
+   
+    //父视图控制器非空判断
     
-    NSString *timeString = nil;
-    
-    NSInteger MM = 0;
-    
-    NSInteger HH = 0;
-    
-    if (59 < time) {
+    if (self.rootVC) {
         
-        MM = time / 60 ;
-        
-        timeString = [NSString stringWithFormat:@"%.2ld:%.2ld",MM,time - MM * 60];
-        
-        if (3599 < time) {
+        if (videoArray.count >0) {
             
-            HH = time / 3600 ;
+            self.videoPlayerVC.videoArray = videoArray;
             
-            timeString = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", HH , MM > 59 ? MM - 60 : MM ,time - MM * 60];
+            self.videoPlayerVC.videoTitle = videoTitle;
+            
+            //跳转视频播放视图控制器
+            
+            [self.rootVC presentViewController:self.videoPlayerVC animated:YES completion:^{
+                
+            }];
+
+            
+        } else {
+            
+            [UIView addLXNotifierWithText:@"视频不存在了..其他视频一样精彩" dismissAutomatically:YES];
             
         }
-        
+
     }
     
-    return timeString;
+}
+
+
+
+#pragma mark---实现UITableViewDataSource，UITableViewDelegate方法
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return self.tableArray.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    
+    return 90;
+    
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    VideoListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CELL" forIndexPath:indexPath];
+    
+    //给cell的数据模型赋值
+    
+    cell.Model = self.tableArray[indexPath.row];
+    
+    return cell;
     
 }
 
@@ -567,10 +650,13 @@
 
 -(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
     
-    //调用齿轮刷新的拖动结束事件<必须调用 否则无法事件上下拉刷新>
-    
-    [self.gearPowered scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
-    
+    if (decelerate) {
+        
+        //调用齿轮刷新的拖动结束事件<必须调用 否则无法事件上下拉刷新>
+        
+        [self.gearPowered scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+    }
+
 }
 
 #pragma mark ---GearPoweredDelegate
@@ -607,7 +693,7 @@
     
     //设置上拉加载URL (页数+1)
     
-    return [NSURL URLWithString:[[NSString stringWithFormat:self.urlStr ,self.page] URLEncodedString] ];
+    return [NSURL URLWithString:[[NSString stringWithFormat:self.urlStr ,self.page] URLEncodedString]];
     
 }
 
@@ -657,6 +743,60 @@
     
 }
 
+-(VideoPlayerViewController *)videoPlayerVC{
+    
+    if (_videoPlayerVC == nil) {
+        
+        _videoPlayerVC = [[VideoPlayerViewController alloc]init];
+        
+    }
+    
+    return _videoPlayerVC;
+    
+}
+
+-(LXAlertViewController *)lxAlertViewController{
+    
+    if (_lxAlertViewController == nil) {
+        
+        _lxAlertViewController = [[LXAlertViewController alloc] init];
+        
+        _lxAlertViewController.lxAlertViewDelegate = self;
+        
+    }
+    
+    
+    return _lxAlertViewController;
+    
+}
+
+-(LoadingView *)loadingView{
+    
+    if (_loadingView == nil) {
+        
+        //初始化加载视图
+        
+        _loadingView = [[LoadingView alloc]initWithFrame:self.frame];
+        
+        _loadingView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+        
+        _loadingView.loadingColor = [UIColor whiteColor];
+        
+        _loadingView.hidden = YES;//默认隐藏
+        
+        //添加到父视图控制器的视图上
+        
+        [self.superview addSubview:_loadingView];
+        
+        [self.superview insertSubview:_loadingView aboveSubview:self];
+        
+    }
+    
+    return _loadingView;
+    
+}
+
+
 -(UIImageView *)reloadImageView{
     
     if (_reloadImageView == nil) {
@@ -669,9 +809,11 @@
         
         _reloadImageView.center = CGPointMake(CGRectGetWidth(self.frame) / 2 , CGRectGetHeight(self.frame) / 2);
         
-        _reloadImageView.image = [UIImage imageNamed:@""];
+        _reloadImageView.image = [[UIImage imageNamed:@"reloadImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
-        _reloadImageView.backgroundColor = [UIColor lightGrayColor];
+        _reloadImageView.tintColor = [UIColor lightGrayColor];
+        
+        _reloadImageView.backgroundColor = [UIColor clearColor];
         
         [_reloadImageView addGestureRecognizer:reloadImageViewTap];
         
@@ -679,7 +821,7 @@
         
         _reloadImageView.userInteractionEnabled = YES;
         
-        [self.superview addSubview:_reloadImageView];
+        [self addSubview:_reloadImageView];
         
         
     }
@@ -688,6 +830,37 @@
     
 }
 
+
+
+#pragma mark ---时间格式转换 将秒转换成指定格式字符串
+
+- (NSString *)getStringWithTime:(NSInteger)time{
+    
+    NSString *timeString = nil;
+    
+    NSInteger MM = 0;
+    
+    NSInteger HH = 0;
+    
+    if (59 < time) {
+        
+        MM = time / 60 ;
+        
+        timeString = [NSString stringWithFormat:@"%.2ld:%.2ld",(long)MM,time - MM * 60];
+        
+        if (3599 < time) {
+            
+            HH = time / 3600 ;
+            
+            timeString = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", (long)HH , MM > 59 ? MM - 60 : MM ,time - MM * 60];
+            
+        }
+        
+    }
+    
+    return timeString;
+    
+}
 
 
 @end

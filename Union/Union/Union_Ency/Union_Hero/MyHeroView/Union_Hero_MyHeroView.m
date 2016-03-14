@@ -2,7 +2,7 @@
 //  Union_Hero_MyHeroView.m
 //  Union
 //
-//  Created by 李响 on 15/7/13.
+//  Created by 张展 on 15/7/13.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -100,7 +100,7 @@
                 
                 UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(promptImageViewAction:)];
                 
-                _promptImageView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@""]];
+                _promptImageView = [[UIImageView alloc]initWithImage:[[UIImage imageNamed:@"myheropromptImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
                 
                 _promptImageView.frame = CGRectMake(0, 0, 150, 150);
                 
@@ -108,7 +108,7 @@
                 
                 [_promptImageView addGestureRecognizer:tap];
                 
-                _promptImageView.backgroundColor = [UIColor lightGrayColor];
+                _promptImageView.tintColor = [UIColor lightGrayColor];
                 
                 _promptImageView.userInteractionEnabled = YES;
                 

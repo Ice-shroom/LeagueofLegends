@@ -2,7 +2,7 @@
 //  MyHeroTableView.h
 //  Union
 //
-//  Created by 李响 on 15/7/19.
+//  Created by 张展 on 15/7/19.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 

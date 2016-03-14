@@ -2,7 +2,7 @@
 //  Union_News_PrettyPictures_View.m
 //  Union
 //
-//  Created by 李响 on 15/7/20.
+//  Created by 张展 on 15/7/21.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -149,6 +149,7 @@
         [_urlString release];
         
         _urlString = [urlString retain];
+        
     }
     
     if (urlString != nil) {
@@ -157,9 +158,9 @@
         
         [self loadData];
         
-        self.gearPowered.url = [NSURL URLWithString:[[NSString stringWithFormat:self.urlString ,self.page] URLEncodedString] ];
+        self.gearPowered.url = [NSURL URLWithString:[[NSString stringWithFormat:_urlString ,self.page] URLEncodedString] ];
         
-        self.gearPowered.bottomUrl = [NSURL URLWithString:[[NSString stringWithFormat:self.urlString ,self.page] URLEncodedString] ];
+        self.gearPowered.bottomUrl = [NSURL URLWithString:[[NSString stringWithFormat:_urlString ,self.page] URLEncodedString] ];
         
         
 
@@ -368,6 +369,20 @@
 
 - (void)didBottomLoadData:(id)data{
     
+    
+//    //页数限制10页
+//    
+//    if (self.page >= 10) {
+//        
+//        self.page = 1;
+//        
+//        //解析前清空数据原数组
+//        
+//        [self.dataArray removeAllObjects];
+//        
+//    }
+
+    
     //上拉加载返回数据
     
     [self JSONSerializationWithData:data];
@@ -377,6 +392,7 @@
 -(NSURL *)settingBottomLoadDataURL{
     
     self.page ++;
+    
     
     //设置上拉加载URL (页数+1)
     
@@ -434,9 +450,11 @@
         
         _reloadImageView.center = CGPointMake(CGRectGetWidth(self.frame) / 2 , CGRectGetHeight(self.frame) / 2);
         
-        _reloadImageView.image = [UIImage imageNamed:@""];
+        _reloadImageView.image = [[UIImage imageNamed:@"reloadImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
-        _reloadImageView.backgroundColor = [UIColor lightGrayColor];
+        _reloadImageView.tintColor = [UIColor lightGrayColor];
+        
+        _reloadImageView.backgroundColor = [UIColor clearColor];
         
         [_reloadImageView addGestureRecognizer:reloadImageViewTap];
         
@@ -445,7 +463,6 @@
         _reloadImageView.userInteractionEnabled = YES;
         
         [self addSubview:_reloadImageView];
-        
         
     }
     

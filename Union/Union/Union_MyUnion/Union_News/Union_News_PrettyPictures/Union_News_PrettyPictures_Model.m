@@ -2,10 +2,9 @@
 //  Union_News_PrettyPictures_Model.m
 //  Union
 //
-//  Created by lanou3g on 15/7/21.
+//  Created by 张展 on 15/7/27.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
-
 #import "Union_News_PrettyPictures_Model.h"
 
 @implementation Union_News_PrettyPictures_Model

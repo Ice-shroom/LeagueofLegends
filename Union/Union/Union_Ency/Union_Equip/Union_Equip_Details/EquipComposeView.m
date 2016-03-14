@@ -2,7 +2,7 @@
 //  EquipComposeView.m
 //  Union
 //
-//  Created by 李响 on 15/8/5.
+//  Created by 张展 on 15/8/5.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -50,9 +50,16 @@
         
         self.clipsToBounds = YES;
         
+        self.backgroundColor = [UIColor whiteColor];
+        
         //初始化
         
         _imageArray = [[NSMutableArray alloc]init];
+        
+        //添加阴影
+        
+        [self dropShadowWithOffset:CGSizeMake(0, 1) radius:2 color:[UIColor darkGrayColor] opacity: 0.6f];
+        
         
     }
     return self;
@@ -149,11 +156,11 @@
             
             //拼接装备图片url
             
-            NSString *picURL = [NSString stringWithFormat:kUnion_Equip_ListImageURL , [eid integerValue]];
+            NSString *picURL = [NSString stringWithFormat:kUnion_Equip_ListImageURL , (long)[eid integerValue]];
             
             //SDWebImage 异步请求加载装备图片 <根据装备ID为参数>
             
-            [imageView sd_setImageWithURL:[NSURL URLWithString:picURL] placeholderImage:[UIImage imageNamed:@""]];
+            [imageView sd_setImageWithURL:[NSURL URLWithString:picURL] placeholderImage:[UIImage imageNamed:@"poluoimage_gray"]];
             
             
             x += size + margin;
@@ -190,7 +197,15 @@
     
     if (_titleLabel == nil) {
         
-        _titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 100, 30)];
+        UIView *titleView = [[UIView alloc]initWithFrame:CGRectMake(0, 15 , 5, 20)];
+        
+        titleView.backgroundColor = MAINCOLOER;
+        
+        [self addSubview:titleView];
+        
+        //初始化
+        
+        _titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 10 , 100, 30)];
         
         _titleLabel.textColor = [UIColor grayColor];
         
@@ -199,11 +214,7 @@
         _titleLabel.textAlignment = NSTextAlignmentCenter;
         
         _titleLabel.text = self.title;
-        
-        //添加阴影
-        
-        [_titleLabel dropShadowWithOffset:CGSizeMake(0, 5) radius:5 color:[UIColor darkGrayColor] opacity: 0.8];
-        
+
         [self addSubview:_titleLabel];
         
         [self bringSubviewToFront:_titleLabel];
@@ -217,7 +228,7 @@
     
     if (_scrollView == nil) {
         
-        _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 40, CGRectGetWidth(self.frame), 45)];
+        _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 50, CGRectGetWidth(self.frame), 50)];
         
         _scrollView.showsHorizontalScrollIndicator = NO;
         

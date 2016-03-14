@@ -2,7 +2,7 @@
 //  Union_News_Details_ViewController.m
 //  Union
 //
-//  Created by lanou3g on 15/7/20.
+//  Created by 张展 on 15/7/27.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -41,8 +41,6 @@
 
 @property (nonatomic , retain) Union_Video_VideoListTableView *videoListTableView;//视频列表视图
 
-@property (nonatomic ,retain) VideoPlayerViewController *videoPlayerVC;//视频播放视图控制器
-
 @end
 
 @implementation Union_News_Details_ViewController
@@ -62,6 +60,8 @@
     [_loadingView release];
     
     [_reloadImageView release];
+    
+    [_videoListTableView release];
        
     [super dealloc];
 }
@@ -70,23 +70,20 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    self.view.backgroundColor = [UIColor whiteColor];
-    
     //标题
     
     self.title = @"资讯";
     
-    
+
     
     //添加导航栏左按钮
     
-    UIBarButtonItem *leftBarButton = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-fanhui"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(leftBarButtonAction:)];
+    UIBarButtonItem *rightBarButton = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-sharebutton"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(rightBarButtonAction:)];
     
-    leftBarButton.tintColor = [UIColor whiteColor];
+    rightBarButton.tintColor = [UIColor whiteColor];
     
-    self.navigationItem.leftBarButtonItem = leftBarButton;
-    
-    
+    self.navigationItem.rightBarButtonItem = rightBarButton;
+
     
     
 }
@@ -248,93 +245,18 @@
                 
                 //视频
 
-                
-                //判断是否以指定域名链接开头
-                
-                if ([urlString hasPrefix:@"http://box.dwstatic.com/unsupport"]) {
-                    
-                    NSString *vid = nil;
-                    
-                    NSString *type = nil;
-                    
-                    //去除域名部分
-                    
-                    urlString = [urlString stringByReplacingOccurrencesOfString:@"http://box.dwstatic.com/unsupport" withString:@""];
-                    
-                    NSRange range = [urlString rangeOfString:@"?"];
-                    
-                    urlString = [urlString substringFromIndex:range.location + range.length];
-                    
-                    //分隔字符串 获取参数
-                    
-                    NSArray *tempArray = [urlString componentsSeparatedByString:@"&"];
-                    
-                    for (NSString *item in tempArray) {
-                        
-                        if ([item hasPrefix:@"vid="]) {
-                            
-                            vid = [item substringFromIndex:4];
-                            
-                        }
-                        
-                        if ([item hasPrefix:@"lolboxAction="]) {
-                            
-                            type = [item substringFromIndex:13];
-                            
-                        }
-                        
-                    }
-                    
-                    //判断类型
-                    
-                    if (vid != nil && type != nil) {
-                        
-                        if ([type isEqualToString:@"videoPlay"]) {
-                            
-                            //播放视频
-                            
-                            __block typeof (self) Self = self;
-                            
-                            self.videoListTableView.selectedVideoBlock = ^(NSMutableArray *videoArray , NSString *videoTitle){
-                                
-                                Self.videoPlayerVC.videoArray = videoArray;
-                                
-                                Self.videoPlayerVC.videoTitle = videoTitle;
-                                
-                                //跳转视频播放视图控制器
-                                
-                                [Self presentViewController:Self.videoPlayerVC animated:YES completion:^{
-                                    
-                                }];
-                                
-                            };
-                            
-                            //根据vid查询视频详情数据 并跳转视频播放
-                            
-                            [self.videoListTableView netWorkingGetVideoDetailsWithVID:vid Title:self.htmlTitle];
-                            
-                        } else if ( [type isEqualToString:@"videoDownLoad"]){
-                            
-                            //下载视频
-                            
-                            
-                            
-                        }
-                        
-                        
-                    }
-                    
-                    
-                }
-                
-                //http://box.dwstatic.com/unsupport.php?vu=&vid=140561&lolboxAction=videoPlay
+                [self webViewVideoWithUrl:urlString];
                 
                 
             } else if ([self.type isEqualToString:@"news"]) {
                 
                 //信息
                 
-                return YES;
+                //通过浏览器打开
+                
+                [[UIApplication sharedApplication] openURL:request.URL];
+                
+                return NO;
                 
             }
             
@@ -342,13 +264,17 @@
         }else {
             
             
-          
+            //通过浏览器打开
             
+            [[UIApplication sharedApplication] openURL:request.URL];
+            
+            return NO;
             
             
         }
         
         
+
         
         return NO;
         
@@ -356,28 +282,99 @@
     
 }
 
+//通过url字符串 获取视频ID 并判断播放 或 下载操作
 
-#pragma mark ---leftBarButtonAction
-
-- (void)leftBarButtonAction:(UIBarButtonItem *)sender{
+-(void)webViewVideoWithUrl:(NSString *)urlString{
     
-    [self.navigationController popViewControllerAnimated:YES];
+    //判断是否以指定域名链接开头
+    
+    if ([urlString hasPrefix:@"http://box.dwstatic.com/unsupport"]) {
+        
+        NSString *vid = nil;
+        
+        NSString *type = nil;
+        
+        //去除域名部分
+        
+        urlString = [urlString stringByReplacingOccurrencesOfString:@"http://box.dwstatic.com/unsupport" withString:@""];
+        
+        NSRange range = [urlString rangeOfString:@"?"];
+        
+        urlString = [urlString substringFromIndex:range.location + range.length];
+        
+        //分隔字符串 获取参数
+        
+        NSArray *tempArray = [urlString componentsSeparatedByString:@"&"];
+        
+        for (NSString *item in tempArray) {
+            
+            if ([item hasPrefix:@"vid="]) {
+                
+                vid = [item substringFromIndex:4];
+                
+            }
+            
+            if ([item hasPrefix:@"lolboxAction="]) {
+                
+                type = [item substringFromIndex:13];
+                
+            }
+            
+        }
+        
+        //判断类型
+        
+        if (vid != nil && type != nil) {
+            
+            if ([type isEqualToString:@"videoPlay"]) {
+                
+                //根据vid查询视频详情数据 并跳转视频播放
+                
+                [self.videoListTableView netWorkingGetVideoDetailsWithVID:vid Title:self.htmlTitle];
+                
+            } else if ( [type isEqualToString:@"videoDownLoad"]){
+                
+                //下载视频
+                
+                
+                
+            }
+            
+            
+        }
+        
+        
+    }
+    
+    //http://box.dwstatic.com/unsupport.php?vu=&vid=140561&lolboxAction=videoPlay
+
+    
+}
+
+
+
+
+#pragma mark ---rightBarButtonAction
+
+- (void)rightBarButtonAction:(UIBarButtonItem *)sender{
+    
     
 }
 
 
 #pragma mark ---LazyLoading
 
--(VideoPlayerViewController *)videoPlayerVC{
+-(Union_Video_VideoListTableView *)videoListTableView{
     
-    if (_videoPlayerVC == nil) {
+    if (_videoListTableView == nil) {
         
-        _videoPlayerVC = [[VideoPlayerViewController alloc]init];
+        _videoListTableView = [[Union_Video_VideoListTableView alloc]init];
+        
+        _videoListTableView.rootVC = self;
         
     }
     
-    return _videoPlayerVC;
-    
+    return _videoListTableView;
 }
 
 -(UIWebView *)webView{
@@ -388,7 +385,7 @@
         
         //自适应屏幕
         
-        _webView.scalesPageToFit = YES;
+        _webView.scalesPageToFit = NO;
         
         _webView.dataDetectorTypes = UIDataDetectorTypeAll;
         
@@ -419,21 +416,14 @@
         
         [self.webView addSubview:_loadingView];
         
+        [self.webView bringSubviewToFront:_loadingView];
+        
     }
     
     return _loadingView;
 }
 
--(Union_Video_VideoListTableView *)videoListTableView{
-    
-    if (_videoListTableView == nil) {
-        
-        _videoListTableView = [[Union_Video_VideoListTableView alloc]init];
-        
-    }
-    
-    return _videoListTableView;
-}
+
 
 -(AFHTTPRequestOperationManager *)manager{
     
@@ -471,9 +461,11 @@
         
         _reloadImageView.center = CGPointMake(CGRectGetWidth(self.view.frame) / 2 , CGRectGetHeight(self.view.frame) / 2);
         
-        _reloadImageView.image = [UIImage imageNamed:@""];
+        _reloadImageView.image = [[UIImage imageNamed:@"reloadImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
-        _reloadImageView.backgroundColor = [UIColor lightGrayColor];
+        _reloadImageView.tintColor = [UIColor lightGrayColor];
+        
+        _reloadImageView.backgroundColor = [UIColor clearColor];
         
         [_reloadImageView addGestureRecognizer:reloadImageViewTap];
         

@@ -2,10 +2,9 @@
 //  Union_News_Headlines_TableViewCell.m
 //  Union
 //
-//  Created by lanou3g on 15/7/18.
+//  Created by 张展 on 15/7/23.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
-
 #import "Union_News_TableViewCell.h"
 
 #import "NSString+GetWidthHeight.h"
@@ -13,6 +12,8 @@
 #import <UIImageView+WebCache.h>
 
 #import "PCH.h"
+
+#import "NSString+SensitiveWords.h"
 
 @interface Union_News_TableViewCell()
 
@@ -64,7 +65,9 @@
         
         //初始化图片
         
-        _photoImageView = [[UIImageView alloc]init];
+        _photoImageView = [[UIImageView alloc]initWithImage:[[UIImage imageNamed:@"imagedefault"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        
+        _photoImageView.tintColor = [UIColor lightGrayColor];
         
         [_whiteView addSubview:_photoImageView];
         
@@ -179,7 +182,7 @@
         _model = [model retain];
     }
     
-    _titleLabel.text = _model.title;
+    _titleLabel.text = [_model.title removeSensitiveWordsWithArray:@[@"手机盒子",@"手机饭盒",@"多玩饭盒",@"多玩",@"饭盒",@"盒子"]];
     
     if ([model.readCount isEqualToString:@"0"]) {
         
@@ -193,11 +196,24 @@
         
     }
     
-    //SDWebImage加载图片
     
-    NSURL *url = [NSURL URLWithString:_model.photo];
+    //通过设置管理 获取是否允许加载图片
     
-    [self.photoImageView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@""]];
+    if ([[SettingManager shareSettingManager]loadImageAccordingToTheSetType]) {
+        
+        //SDWebImage加载图片
+        
+        NSURL *url = [NSURL URLWithString:_model.photo];
+        
+        [self.photoImageView sd_setImageWithURL:url placeholderImage:[[UIImage imageNamed:@"imagedefault"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        
+    } else {
+        
+        self.photoImageView.image = [[UIImage imageNamed:@"imagedefault"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        
+    }
+    
+    
     
     [self heightContentTitle:_model.content];
     
@@ -209,6 +225,10 @@
 //计算子标题的高度
 
 - (void)heightContentTitle:(NSString *)textStr{
+    
+    //清除敏感字符串
+    
+    textStr = [textStr removeSensitiveWordsWithArray:@[@"手机盒子"]];
     
     //计算高度
     

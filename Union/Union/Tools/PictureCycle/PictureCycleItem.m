@@ -2,7 +2,7 @@
 //  PictureCycleItem.m
 //  Union
 //
-//  Created by 李响 on 15/7/27.
+//  Created by 张展 on 15/7/27.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -43,7 +43,9 @@
         
         //初始化图片
         
-        _imageView = [[UIImageView alloc]init];
+        _imageView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"lollogo"]];
+        
+        
         
         [self addSubview:_imageView];
         
@@ -95,7 +97,7 @@
         
         //SDWebImage加载图片
         
-        [_imageView sd_setImageWithURL:[NSURL URLWithString:model.photoUrl] placeholderImage:[UIImage imageNamed:@""]];
+        [_imageView sd_setImageWithURL:[NSURL URLWithString:model.photoUrl] placeholderImage:[UIImage imageNamed:@"lollogo"]];
         
         if (model.picTitle != nil) {
             

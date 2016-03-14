@@ -2,7 +2,7 @@
 //  Union_Hero_FreeHeroCollectionView.m
 //  Union
 //
-//  Created by 李响 on 15/7/16.
+//  Created by 张展 on 15/7/16.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -127,7 +127,7 @@
     
     //查询本地缓存 指定数据名
     
-    id caCheData = [[DataCache shareDataCache] getDataForDocumentWithDataName:@"FreeHeroData"];
+    id caCheData = [[DataCache shareDataCache] getDataForDocumentWithDataName:@"FreeHeroData" Classify:@"Hero"];
     
     if (caCheData == nil) {
         
@@ -168,7 +168,7 @@
             
             //将数据缓存到本地 指定数据名
             
-            [[DataCache shareDataCache] saveDataForDocumentWithData:responseObject DataName:@"FreeHeroData"];
+            [[DataCache shareDataCache] saveDataForDocumentWithData:responseObject DataName:@"FreeHeroData" Classify:@"Hero"];
             
         } else {
             
@@ -186,7 +186,7 @@
         
         if (self.dataArray.count > 0) {
             
-            [UIView addLXNotifierWithText:@"加载失败 快看看网络去哪了" dismissAutomatically:NO];
+            [UIView addLXNotifierWithText:@"加载失败 快看看网络去哪了" dismissAutomatically:YES];
             
         } else {
             
@@ -340,7 +340,7 @@
     
     //将数据缓存到本地 指定数据名
     
-    [[DataCache shareDataCache] saveDataForDocumentWithData:data DataName:@"FreeHeroData"];
+    [[DataCache shareDataCache] saveDataForDocumentWithData:data DataName:@"FreeHeroData" Classify:@"Hero"];
     
     //调用数据解析方法
     
@@ -396,9 +396,11 @@
         
         _reloadImageView.center = CGPointMake(CGRectGetWidth(self.frame) / 2 , CGRectGetHeight(self.frame) / 2);
         
-        _reloadImageView.image = [UIImage imageNamed:@""];
+        _reloadImageView.image = [[UIImage imageNamed:@"reloadImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
-        _reloadImageView.backgroundColor = [UIColor lightGrayColor];
+        _reloadImageView.tintColor = [UIColor lightGrayColor];
+        
+        _reloadImageView.backgroundColor = [UIColor clearColor];
         
         [_reloadImageView addGestureRecognizer:reloadImageViewTap];
         
@@ -406,7 +408,7 @@
         
         _reloadImageView.userInteractionEnabled = YES;
         
-        [self.superview addSubview:_reloadImageView];
+        [self addSubview:_reloadImageView];
         
         
     }

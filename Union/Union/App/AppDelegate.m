@@ -2,14 +2,18 @@
 //  AppDelegate.m
 //  Union
 //
-//  Created by 李响 on 15/6/29.
+//  Created by 张展 on 15/6/29.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
 #import "AppDelegate.h"
 
+#import "CoreStatus.h"
 
 #import "PCH.h"
+
+
+#import "DownloadViewController.h"
 
 #import "Union_NewsViewController.h"
 
@@ -24,7 +28,16 @@
 #import "BaseTabBarController.h"
 
 
-@interface AppDelegate ()
+#import <CBZSplashView.h>
+
+#import <MobClick.h>
+
+#import <UMFeedback.h>
+
+
+@interface AppDelegate ()<CoreStatusProtocol>
+
+@property (nonatomic ,retain) DownloadViewController *downloadVC;//下载视图控制器
 
 @end
 
@@ -42,8 +55,35 @@
     
     [self.window makeKeyAndVisible];
     
-    
     [self loadRootView];
+
+    [self loadDownloadView];
+    
+    [self loadstartImage];
+    
+    
+    
+    
+    //友盟Appkey 55d4404ae0f55a066500096e
+    
+    //统计SDK集成
+    
+    [MobClick startWithAppkey:@"55d4404ae0f55a066500096e" reportPolicy:BATCH   channelId:@""];
+    
+    //version标识
+    
+    NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    
+    [MobClick setAppVersion:version];
+    
+    //反馈SDK集成
+    
+    [UMFeedback setAppkey:@"55d4404ae0f55a066500096e"];
+    
+    //获取在线参数
+    
+    [MobClick updateOnlineConfig];
+    
     
     return YES;
     
@@ -89,12 +129,11 @@
     
     UVVC.title = @"视频";
     
-    
     //设置导航控制器
     
     videoNC.tabBarItem.title = @"视频直播";
     
-    videoNC.tabBarItem.image = [UIImage imageNamed:@"iconfont-zhiboluxiang"];
+    videoNC.tabBarItem.image = [UIImage imageNamed:@"iconfont-shipin"];
     
     videoNC.navigationBar.translucent = NO;//不透明
     
@@ -146,14 +185,14 @@
     
     //设置视图控制器
     
-    UMUVC.title = @"我的";
+    UMUVC.title = @"我";
     
     
     //设置导航控制器
     
     myunionNC.tabBarItem.title = @"我的";
     
-    myunionNC.tabBarItem.image = [UIImage imageNamed:@"iconfont-wode"];
+    myunionNC.tabBarItem.image = [UIImage imageNamed:@"iconfont-myself"];
     
     myunionNC.navigationBar.translucent = NO;//不透明
     
@@ -178,7 +217,6 @@
     tabBarController.tabBar.tintColor = MAINCOLOER;
     
     self.window.rootViewController = tabBarController;
-    
     
     
     
@@ -208,9 +246,92 @@
     
 }
 
+//加载启动图片
+
+- (void)loadstartImage{
+    
+    //启动图片动画
+    
+    UIImage *icon = [UIImage imageNamed:@"startImage"];
+    
+    UIColor *color = MAINCOLOER;
+    
+    CBZSplashView *splashView = [CBZSplashView splashViewWithIcon:icon backgroundColor:color];
+    
+    splashView.animationDuration = 1.4f;
+    
+    splashView.iconColor = [UIColor whiteColor];
+    
+    [self.window addSubview:splashView];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        
+        [splashView startAnimation];//延迟0.5秒开启动画
+        
+    });
+    
+}
+
+//加载下载气泡视图
+
+- (void)loadDownloadView{
+    
+    _downloadView = [[DownloadView alloc]initWithFrame:CGRectMake(CGRectGetWidth(self.window.frame) - 80 , self.window.frame.size.height - 190, 60, 60)];
+    
+    _downloadView.backgroundColor = [UIColor clearColor];
+    
+    [self.window addSubview:_downloadView];
+    
+    [self.window bringSubviewToFront:_downloadView];
+    
+    //获取在线参数判断是否显示下载
+    
+    BOOL isShowDownLoad = [[MobClick getConfigParams:@"isShowDownLoad"] boolValue];
+    
+    if (isShowDownLoad) {
+        
+        //允许显示下载气泡
+        
+        //获取本地设置 是否隐藏下载气泡
+        
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        
+        BOOL isHiddenDownloadView = NO;
+        
+        if ([defaults objectForKey:@"settingDownloadviewHiddenOrShow"] != nil) {
+            
+            isHiddenDownloadView = [[defaults objectForKey:@"settingDownloadviewHiddenOrShow"] boolValue];
+        }
+        
+        if (isHiddenDownloadView) {
+            
+            self.downloadView.hidden = YES;
+            
+        } else {
+            
+            self.downloadView.hidden = NO;
+            
+        }
+        
+        
+    } else {
+        
+        //隐藏下载气泡
+        
+        self.downloadView.hidden = YES;
+        
+    }
+
+}
+
+
 -(void)dealloc {
     
     [_window release];
+    
+    [_downloadView release];
+    
+    [_downloadVC release];
     
     [super dealloc];
     
@@ -226,7 +347,7 @@
 //}
 
 
-#pragma mark ---
+#pragma mark ---监控网络状态
 
 
 //当网络改变时
@@ -285,7 +406,7 @@
             
         default:
             
-
+            stateString = @"未知网络";
             
             break;
             
@@ -294,6 +415,20 @@
     [UIView addLXNotifierWithText:[NSString stringWithFormat:@"您正处于%@状态",stateString] dismissAutomatically:YES];
     
 }
+
+
+#pragma mark ---打开下载视图控制器
+
+- (void)openDownloadVC{
+    
+    [self.window.rootViewController presentViewController:self.downloadVC animated:YES completion:^{
+        
+    }];
+    
+}
+
+
+#pragma mark ---AppDelegate
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -304,6 +439,7 @@
     //移除网络状态监听
     
     [CoreStatus endNotiNetwork:self];
+    
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
@@ -341,6 +477,21 @@
     
     
 
+}
+
+
+#pragma  mark ----LazyLoading
+
+-(DownloadViewController *)downloadVC{
+    
+    if (_downloadVC == nil) {
+        
+        _downloadVC = [[DownloadViewController alloc]init];
+        
+    }
+    
+    return _downloadVC;
+    
 }
 
 @end

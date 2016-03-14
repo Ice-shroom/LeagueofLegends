@@ -2,7 +2,7 @@
 //  GPBottomLoadingView.m
 //  
 //
-//  Created by 李响 on 15/7/15.
+//  Created by 张展 on 15/7/15.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -19,10 +19,11 @@
 @property (nonatomic , retain) UILabel *errorLabel;//错误标签
 
 
-
 @property (nonatomic , assign) CGFloat scale;//缩放比例
 
 @property (nonatomic , assign) BOOL isLoading;//是否正在加载状态
+
+@property (nonatomic , assign) BOOL isErrorAnimation;//是否正在进行加载错误动画
 
 @end
 
@@ -86,7 +87,11 @@
         
         [self addSubview:_mainGear];
         
+        //设置默认属性值
+        
         _isLoading = NO;
+        
+        _isErrorAnimation = NO;
         
         _scale = 0.2;
         
@@ -97,33 +102,39 @@
 -(void)layoutSubviews{
     
     [super layoutSubviews];
-
-    //加载时不可更改大小
     
-    if (self.isLoading == NO) {
+    //判断是否正在进行加载错误动画 (没有进行错误动画时才可以进行操作)
+    
+    if (_isErrorAnimation == NO) {
         
-        //设置主齿轮大小
+        //加载时不可更改大小
         
-        CGFloat mainHeight = CGRectGetHeight(self.frame) < 40 ? CGRectGetHeight(self.frame) : 40;
+        if (self.isLoading == NO) {
+            
+            //设置主齿轮大小
+            
+            CGFloat mainHeight = CGRectGetHeight(self.frame) < 40 ? CGRectGetHeight(self.frame) : 40;
+            
+            _mainGear.frame = CGRectMake(10, 10, mainHeight , mainHeight);
+            
+        }
         
-        _mainGear.frame = CGRectMake(10, 10, mainHeight , mainHeight);
+        //设置主齿轮位置
+        
+        CGFloat mainx = self.frame.size.width / 2;
+        
+        CGFloat mainy = self.frame.size.height / 2;
+        
+        _mainGear.center = CGPointMake( mainx , mainy );
         
         
+        //设置错误标签视图位置
+        
+        _errorLabelView.center = CGPointMake( _errorLabelView.frame.origin.x + 50 , mainy );
         
     }
-   
-    //设置主齿轮位置
-    
-    CGFloat mainx = self.frame.size.width / 2;
-    
-    CGFloat mainy = self.frame.size.height / 2;
-    
-    _mainGear.center = CGPointMake( mainx , mainy );
-    
-    
-    //设置错误标签视图位置
 
-    _errorLabelView.center = CGPointMake( _errorLabelView.frame.origin.x + 50 , mainy );
+    
     
 }
 
@@ -143,6 +154,10 @@
 
 - (void)loadingView{
     
+    //更新加载状态
+    
+    self.isLoading = YES;
+    
     //旋转角度归0
     
     self.mainGear.transform = CGAffineTransformMakeRotation(0);
@@ -151,9 +166,7 @@
     
     [self.mainGear.layer addAnimation:[self rotationGear:M_PI * 2.0] forKey:@"Rotation"];
     
-    //更新加载状态
     
-    self.isLoading = YES;
     
 }
 
@@ -187,31 +200,19 @@
 
 - (void)didLoadView{
     
-    //清除原加载动画
-    
-    [self.mainGear.layer removeAnimationForKey:@"Rotation"];
-    
-    __block GPBottomLoadingView *Self = self;
-    
-    [UIView animateWithDuration:0.2f animations:^{
+    if (self.isLoading) {
         
-        //放大
+        //清除原加载动画
         
-        Self.mainGear.frame = CGRectMake(0, 0, 50, 50);
+        [self.mainGear.layer removeAnimationForKey:@"Rotation"];
         
-        CGFloat mainx = self.frame.size.width / 2;
+        __block GPBottomLoadingView *Self = self;
         
-        CGFloat mainy = self.frame.size.height / 2;
-        
-        Self.mainGear.center = CGPointMake( mainx , mainy );
-        
-    } completion:^(BOOL finished) {
-        
-        [UIView animateWithDuration:0.8f animations:^{
+        [UIView animateWithDuration:0.2f animations:^{
             
-            //缩小
+            //放大
             
-            Self.mainGear.frame = CGRectMake(0, 0, 0, 0);
+            Self.mainGear.frame = CGRectMake(0, 0, 50, 50);
             
             CGFloat mainx = self.frame.size.width / 2;
             
@@ -221,18 +222,34 @@
             
         } completion:^(BOOL finished) {
             
-            //调用加载结束的Block
-            
-            Self.didBottomLoadBlock();
-            
-            //更新加载状态
-            
-            Self.isLoading = NO;
+            [UIView animateWithDuration:0.8f animations:^{
+                
+                //缩小
+                
+                Self.mainGear.frame = CGRectMake(0, 0, 0, 0);
+                
+                CGFloat mainx = self.frame.size.width / 2;
+                
+                CGFloat mainy = self.frame.size.height / 2;
+                
+                Self.mainGear.center = CGPointMake( mainx , mainy );
+                
+            } completion:^(BOOL finished) {
+                
+                //调用加载结束的Block
+                
+                Self.didBottomLoadBlock();
+                
+                //更新加载状态
+                
+                Self.isLoading = NO;
+                
+            }];
             
         }];
-        
-    }];
 
+        
+    }
     
 }
 
@@ -243,68 +260,65 @@
 
 - (void)errorLoadView{
     
-    //抖动动画
-    
-//    CAKeyframeAnimation *erroranim=[CAKeyframeAnimation animation];
-//   
-//    erroranim.keyPath=@"transform.rotation";
-//   
-//    erroranim.values=@[@(angelToRandian(-7)),@(angelToRandian(7)),@(angelToRandian(-7))];
-//    
-//    erroranim.repeatCount=MAXFLOAT;
-//    
-//    erroranim.duration=0.1;
-//    
-//    [self.mainGear.layer addAnimation:erroranim forKey:@"errorAnimation"];
-    
-    //清空原加载动画
-    
-    [self.mainGear.layer removeAnimationForKey:@"Rotation"];
-    
-    //加速旋转动画
-
-    [self.mainGear.layer addAnimation:[self rotationGear:M_PI * 7.0] forKey:@"Rotation"];
-
-    
-    __block GPBottomLoadingView *Self = self;
-    
-    [UIView animateWithDuration:1.0f animations:^{
+    if (self.isLoading) {
         
-        //主齿轮滚出屏幕 加载失败提示视图显示
+        //设置加载错误动画状态为YES
         
-        Self.errorLabelView.center = CGPointMake(CGRectGetWidth(Self.frame) / 2, CGRectGetHeight(Self.frame) / 2);
+        _isErrorAnimation = YES;
         
-        Self.mainGear.center = CGPointMake(CGRectGetWidth(Self.frame) + 20, CGRectGetHeight(Self.frame) / 2);
+        //清空原加载动画
+        
+        [self.mainGear.layer removeAnimationForKey:@"Rotation"];
+        
+        //加速旋转动画
+        
+        [self.mainGear.layer addAnimation:[self rotationGear:M_PI * 7.0] forKey:@"Rotation"];
         
         
-    } completion:^(BOOL finished) {
+        __block GPBottomLoadingView *Self = self;
         
-        //延迟一秒执行
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [UIView animateWithDuration:1.0f animations:^{
             
-            //调用加载结束的Block
+            //主齿轮滚出屏幕 加载失败提示视图显示
             
-            Self.didBottomLoadBlock();
+            Self.errorLabelView.center = CGPointMake(CGRectGetWidth(Self.frame) / 2, CGRectGetHeight(Self.frame) / 2);
             
-            //更新加载状态
+            Self.mainGear.center = CGPointMake(CGRectGetWidth(Self.frame) + 20, CGRectGetHeight(Self.frame) / 2);
             
-            Self.isLoading = NO;
             
-            //还原错误标签视图位置
+        } completion:^(BOOL finished) {
             
-            _errorLabelView.center = CGPointMake( 0 - 50 , self.frame.size.height / 2 );
+            //延迟一秒执行
             
-            //清空加速旋转加载动画
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                
+                //调用加载结束的Block
+                
+                Self.didBottomLoadBlock();
+                
+                //更新加载状态
+                
+                Self.isLoading = NO;
+                
+                //还原错误标签视图位置
+                
+                _errorLabelView.center = CGPointMake( 0 - 50 , self.frame.size.height / 2 );
+                
+                //清空加速旋转加载动画
+                
+                [Self.mainGear.layer removeAnimationForKey:@"Rotation"];
+                
+                //设置加载错误动画状态为NO
+                
+                _isErrorAnimation = NO;
+                
+            });
             
-            [Self.mainGear.layer removeAnimationForKey:@"Rotation"];
             
-        });
-        
+        }];
 
         
-    }];
-
+    }
     
 }
 

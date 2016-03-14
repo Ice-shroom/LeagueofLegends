@@ -2,7 +2,7 @@
 //  VideoPlayerViewController.m
 //  Union
 //
-//  Created by 李响 on 15/7/23.
+//  Created by 张展 on 15/7/23.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -16,6 +16,9 @@
 
 #import "LoadingView.h"
 
+#import "SettingManager.h"
+
+#import <AVKit/AVKit.h>
 
 
 @interface VideoPlayerViewController ()<UIGestureRecognizerDelegate>
@@ -90,6 +93,8 @@
 
 
 
+@property (nonatomic , assign ) BOOL isDismiss;//是否退出 YES为以退出 NO为未退出正在显示
+
 @end
 
 @implementation VideoPlayerViewController
@@ -154,7 +159,7 @@
 
 -(void)loadTopView{
     
-    _topView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.frame), 44)];
+    _topView = [[UIView alloc]initWithFrame:CGRectMake(0, 0 , CGRectGetWidth(self.view.frame), 64)];
     
     _topView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
     
@@ -170,7 +175,7 @@
     
     [_topBackButton setImage:[[UIImage imageNamed:@"iconfont-fanhui"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     
-    _topBackButton.frame = CGRectMake(0, 0, 60, 44);
+    _topBackButton.frame = CGRectMake(0, 20, 60, 44);
     
     [_topBackButton addTarget:self action:@selector(backButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     
@@ -180,7 +185,7 @@
     
     _topDefinitionButton = [UIButton buttonWithType:UIButtonTypeCustom];
     
-    _topDefinitionButton.frame = CGRectMake(CGRectGetWidth(_topView.frame) - 70, 7, 60, 30);
+    _topDefinitionButton.frame = CGRectMake(CGRectGetWidth(_topView.frame) - 70, 27, 60, 30);
     
     _topDefinitionButton.layer.borderWidth = 1.0f;
     
@@ -260,7 +265,7 @@
     
     //初始标题
     
-    _topTitleLabel = [[UILabel alloc]initWithFrame:CGRectMake(65 , 0 , CGRectGetWidth(_topView.frame) - 135 , 44)];
+    _topTitleLabel = [[UILabel alloc]initWithFrame:CGRectMake(65 , 20 , CGRectGetWidth(_topView.frame) - 135 , 44)];
     
     _topTitleLabel.textColor = [UIColor whiteColor];
     
@@ -335,7 +340,7 @@
     
     //初始化播放时间
     
-    _playTimeLabel = [[UILabel alloc]initWithFrame:CGRectMake(CGRectGetWidth(self.view.frame) - 140 , 30 , 50 , 30)];
+    _playTimeLabel = [[UILabel alloc]initWithFrame:CGRectMake(CGRectGetWidth(self.view.frame) - 150 , 30 , 60 , 30)];
     
     _playTimeLabel.text = @"00:00:00";
     
@@ -455,7 +460,6 @@
     
     [self.view addSubview:_promptView];
     
-    
     //初始化滑动值
     
     _promptValueLabel = [[UILabel alloc]initWithFrame:CGRectMake(0 , 50, CGRectGetWidth(_promptView.frame), 60)];
@@ -495,15 +499,15 @@
     
     //顶部控制视图布局
     
-    _topView.frame = CGRectMake(0, 0, CGRectGetWidth(self.view.frame), 44);
+    _topView.frame = CGRectMake(0, 0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.topView.frame));
     
-    _topBackButton.frame = CGRectMake(0, 0, 60, 44);
+    _topBackButton.frame = CGRectMake(0, 20, 60, 44);
     
-    _topDefinitionButton.frame = CGRectMake(CGRectGetWidth(_topView.frame) - 80, 7, 60, 30);
+    _topDefinitionButton.frame = CGRectMake(CGRectGetWidth(_topView.frame) - 80, 27, 60, 30);
     
     _topDefinitionListView.center = CGPointMake(CGRectGetWidth(self.view.frame) / 2 , CGRectGetHeight(self.view.frame) / 2);
     
-    _topTitleLabel.frame = CGRectMake(65 , 0 , CGRectGetWidth(_topView.frame) - 150 , 44);
+    _topTitleLabel.frame = CGRectMake(65 , 20 , CGRectGetWidth(_topView.frame) - 150 , 44);
     
     //底部控制视图布局
     
@@ -515,7 +519,7 @@
     
     _slider.frame = CGRectMake(68 , 15 , CGRectGetWidth(self.view.frame) - 96 , 30);
     
-    _playTimeLabel.frame = CGRectMake(CGRectGetWidth(self.view.frame) - 140 , 30 , 50 , 30);
+    _playTimeLabel.frame = CGRectMake(CGRectGetWidth(self.view.frame) - 150 , 30 , 60 , 30);
     
     _videoDurationLabel.frame = CGRectMake(CGRectGetWidth(self.view.frame) - 90 , 30 , 70 , 30);
     
@@ -794,12 +798,15 @@
     
     [_systemvolumeViewSlider setValue:slider.value animated:YES];
     
+    
 }
 
 
 #pragma mark ---开始触摸事件
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    
+    [self.view bringSubviewToFront:_promptView];
     
     //得到触摸点
     
@@ -836,7 +843,6 @@
     
     if (self.moveDirection == 1 || self.moveDirection == 0) {
         
-        
         //左右滑动判定
         
         if ( self.startPoint.x - self.endPoint.x > 10 || self.startPoint.x - self.endPoint.x < - 10 ) {
@@ -861,7 +867,7 @@
                 
                 //更改的时间计数+速度差
                 
-                self.changeTime += 0 - (self.startPoint.x - self.endPoint.x);
+                self.changeTime += 2;
                 
             } else if (self.startPoint.x > self.endPoint.x ) {
                 
@@ -869,7 +875,7 @@
                 
                 //更改的时间计数+速度差
                 
-                self.changeTime -= self.startPoint.x - self.endPoint.x;
+                self.changeTime -= 2;
                 
             }
             
@@ -936,6 +942,16 @@
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
     
+    //改变播放时间处理
+    
+    [self changeTimeHandle];
+    
+}
+
+#pragma mark ---改变播放时间处理
+
+- (void)changeTimeHandle{
+    
     //判断是否改变了时间
     
     if (self.changeTime != 0) {
@@ -965,16 +981,36 @@
 
 - (void)handleTap:(UITapGestureRecognizer *)tap{
     
+    //提示视图隐藏判断 (由于点击手势可能会截获touchEnded响应 所以要在这里判断做出操作)
     
-    if (self.topView.frame.origin.y >= 0) {
+    if (_promptView.hidden) {
         
-        [self hiddenControlView];
+        if (self.topView.frame.origin.y >= 0) {
+            
+            [self hiddenControlView];
+            
+            [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
+            
+        } else {
+            
+            [self showControlView];
+            
+            [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
+            
+        }
         
     } else {
         
-        [self showControlView];
+        //改变播放时间处理
+        
+        [self changeTimeHandle];
         
     }
+    
+    
+
+    
+    
  
 }
 
@@ -1037,7 +1073,7 @@
         
         Self.bottomView.frame = CGRectMake(0 , CGRectGetHeight(Self.moviePlayer.view.frame) - 60 , CGRectGetWidth(Self.bottomView.frame), 60);
         
-        Self.topView.frame = CGRectMake(0 , 0 , CGRectGetWidth(Self.topView.frame), 44);
+        Self.topView.frame = CGRectMake(0 , 0 , CGRectGetWidth(Self.topView.frame), CGRectGetHeight(Self.topView.frame));
         
         //显示音量控制视图
         
@@ -1058,7 +1094,7 @@
     
     [UIView animateWithDuration:0.5f animations:^{
         
-        Self.topView.frame = CGRectMake(0 , 0 - 44 , CGRectGetWidth(Self.topView.frame), 44);
+        Self.topView.frame = CGRectMake(0 , 0 - 64 , CGRectGetWidth(Self.topView.frame), CGRectGetHeight(Self.topView.frame));
         
         Self.bottomView.frame = CGRectMake(0 , CGRectGetHeight(Self.moviePlayer.view.frame), CGRectGetWidth(Self.bottomView.frame), 60);
         
@@ -1117,22 +1153,59 @@
 
 }
 
--(void)viewWillDisappear:(BOOL)animated{
+
+#pragma mark ---视图即将出现
+
+-(void)viewWillAppear:(BOOL)animated{
     
-    [super viewWillDisappear:animated];
+    [super viewWillAppear:animated];
+    
+    //设置退出状态
+    
+    self.isDismiss = NO;
+    
+    //隐藏下载气泡
+    
+    [[SettingManager shareSettingManager] downloadViewHiddenOrShow:YES];
+    
+}
+
+#pragma mark ---视图已经消失
+
+-(void)viewDidDisappear:(BOOL)animated{
+    
+    [super viewDidDisappear:animated];
     
     //视图即将消失
     
-    //停止播放
+    //判断是否准备好播放
     
-    [self.moviePlayer stop];
+    if (self.moviePlayer.isPreparedToPlay) {
+        
+        //停止播放
+        
+        [self.moviePlayer stop];
+        
+    } else {
+        
+        //设置已退出状态
+        
+        self.isDismiss = YES;
+        
+    }
+
+    
+    //显示下载气泡
+    
+    [[SettingManager shareSettingManager] downloadViewHiddenOrShow:NO];
     
 }
+
 
 - (void)didReceiveMemoryWarning {
     
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    // Dispose of any resources that can be recreated.apptransport security
 }
 
 /*
@@ -1185,51 +1258,59 @@
     if (videoArray != nil) {
 
         
-        //检测当前清晰度选项下标是否越界
-        
-        if (self.definitionIndex > videoArray.count - 1) {
+        if (videoArray.count > 0) {
             
-            //如果越界设为当前最高清晰度下标
+            //检测当前清晰度选项下标是否越界
             
-            self.definitionIndex = videoArray.count - 1;
+            if (self.definitionIndex > videoArray.count - 1) {
+                
+                //如果越界设为当前最高清晰度下标
+                
+                self.definitionIndex = videoArray.count - 1;
+                
+            }
+            
+            //隐藏所有清晰度列表选项
+            
+            for (UIButton *itemButton in _topDefinitionListView.subviews) {
+                
+                itemButton.hidden = YES;
+                
+            }
+            
+            //显示清晰度列表选项
+            
+            for (int i = 0 ; i < videoArray.count ; i++) {
+                
+                UIButton *tempButton = (UIButton *)_topDefinitionListView.subviews[i];
+                
+                tempButton.hidden = NO;
+                
+            }
+            
+            //显示加载视图
+            
+            self.loadingView.hidden = NO;
+            
+            //设置视频URL
+            
+            self.moviePlayer.contentURL = [self getNetworkUrl];
+            
+            
+            //缓冲视频
+            
+            [self.moviePlayer prepareToPlay];
+            
+            //播放
+            
+            [self.moviePlayer play];
+
+            
+        } else {
+            
+            
             
         }
-        
-        //隐藏所有清晰度列表选项
-        
-        for (UIButton *itemButton in _topDefinitionListView.subviews) {
-            
-            itemButton.hidden = YES;
-            
-        }
-        
-        //显示清晰度列表选项
-        
-        for (int i = 0 ; i < videoArray.count ; i++) {
-            
-            UIButton *tempButton = (UIButton *)_topDefinitionListView.subviews[i];
-            
-            tempButton.hidden = NO;
-            
-        }
-        
-        //显示加载视图
-        
-        self.loadingView.hidden = NO;
-        
-        //设置视频URL
-        
-        self.moviePlayer.contentURL = [self getNetworkUrl];
-        
-        
-        //缓冲视频
-        
-        [self.moviePlayer prepareToPlay];
-        
-        //播放
-        
-        [self.moviePlayer play];
-        
         
     }
 
@@ -1481,6 +1562,9 @@
                 
             }
             
+            
+            
+            
             break;
         
         case MPMoviePlaybackStatePaused:
@@ -1547,7 +1631,7 @@
         
         default:
         
-            NSLog(@"播放状态:%li",self.moviePlayer.playbackState);
+            NSLog(@"播放状态:%ld",(long)self.moviePlayer.playbackState);
             
             break;
     
@@ -1572,7 +1656,7 @@
 
 -(void)mediaPlayerPlaybackFinished:(NSNotification *)notification{
 
-    NSLog(@"播放完成.%li",self.moviePlayer.playbackState);
+    NSLog(@"播放完成.%ld",(long)self.moviePlayer.playbackState);
     
     [self dismissViewControllerAnimated:YES completion:^{
         
@@ -1625,6 +1709,20 @@
             self.loadingView.hidden = YES;
             
             NSLog(@"====可播");
+            
+            //判断是否已退出 如果退出则停止播放
+            
+            if (self.isDismiss) {
+                
+                //暂停视频
+                
+                [self.moviePlayer pause];
+                
+                //停止视频
+                
+                [self.moviePlayer stop];
+                
+            }
             
             break;
             
@@ -1696,7 +1794,6 @@
     
     self.nowPlayTime = self.moviePlayer.currentPlaybackTime;
     
-    
     //获取已缓冲的百分比 (可播放时长 除以 总播放时长)
     
     CGFloat LoadedProgress = self.moviePlayer.playableDuration / self.moviePlayer.duration;
@@ -1706,8 +1803,6 @@
     [self.progressView setProgress:LoadedProgress animated:YES];
     
     
-
-    
 }
 
 
@@ -1716,12 +1811,12 @@
 
 //隐藏状态条
 
-- (BOOL)prefersStatusBarHidden
-{
-    
-    return YES;
-
-}
+//- (BOOL)prefersStatusBarHidden
+//{
+//    
+//    return YES;
+//
+//}
 
 
 #pragma mark ---设置电池条前景部分样式类型 (白色)
@@ -1762,7 +1857,7 @@
  
     }
     
-    timeString = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", HH , MM > 59 ? MM - 60 : MM ,time - MM * 60];
+    timeString = [NSString stringWithFormat:@"%.2ld:%.2ld:%.2ld", (long)HH , MM > 59 ? MM - 60 : MM ,time - MM * 60];
     
     return timeString;
     

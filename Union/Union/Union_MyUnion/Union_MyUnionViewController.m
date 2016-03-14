@@ -2,7 +2,7 @@
 //  Union_MyUnionViewController.m
 //  Union
 //
-//  Created by 李响 on 15/6/30.
+//  Created by 张展 on 15/6/30.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -10,11 +10,7 @@
 
 #import "MyUnion_UserTableViewCell.h"
 
-#import "MyUnion_SummonerListTableViewCell.h"
-
-#import "MyUnion_SettingTableViewCell.h"
-
-#import "MyUnion_AboutTableViewCell.h"
+#import "MyUnion_TableViewCell.h"
 
 
 #import "SummonerDetailsViewController.h"
@@ -22,6 +18,10 @@
 #import "SummonerListViewController.h"
 
 #import "SettingViewController.h"
+
+#import "FAQViewController.h"
+
+#import "FeedbackViewController.h"
 
 #import "AboutViewController.h"
 
@@ -36,6 +36,8 @@
 
 #import "DismissingAnimator.h"
 
+#import <UMFeedback.h>
+
 
 @interface Union_MyUnionViewController ()<UITableViewDataSource , UITableViewDelegate , UIViewControllerTransitioningDelegate>
 
@@ -46,6 +48,10 @@
 @property (nonatomic , retain ) SummonerListViewController *summonerListVC;//召唤师列表
 
 @property (nonatomic , retain ) SettingViewController *settringVC;//设置视图控制器
+
+@property (nonatomic , retain ) FAQViewController *FAQVC;//常见问题视图控制器
+
+@property (nonatomic , retain ) FeedbackViewController *feedbackVC;//意见反馈视图控制器
 
 @property (nonatomic , retain ) AboutViewController *aboutVC;//关于视图控制器
 
@@ -64,6 +70,10 @@
     
     [_settringVC release];
     
+    [_FAQVC release];
+    
+    [_feedbackVC release];
+    
     [_aboutVC release];
     
     [super dealloc];
@@ -72,6 +82,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     
     //初始化表视图
     
@@ -85,6 +96,8 @@
     
     [self.view addSubview:_tableView];
     
+    [_tableView registerClass:[MyUnion_TableViewCell class] forCellReuseIdentifier:@"cell"];
+
     
 }
 
@@ -136,7 +149,7 @@
             
         case 3:
             
-            return 1;
+            return 4;
             
             break;
             
@@ -158,7 +171,7 @@
     
     } else {
         
-        return 10;
+        return 5;
         
     }
     
@@ -169,11 +182,11 @@
     
     if (indexPath.section == 0) {
         
-        return 100;
+        return 90;
         
     } else {
         
-        return 60;
+        return 48;
         
     }
     
@@ -209,13 +222,15 @@
             
             //召唤师列表
             
-            MyUnion_SummonerListTableViewCell *slistCell = [tableView dequeueReusableCellWithIdentifier:@"slistCell"];
+            MyUnion_TableViewCell *slistCell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
             
-            if (slistCell == nil) {
-                
-                slistCell = [[MyUnion_SummonerListTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"slistCell"];
-                
-            }
+            slistCell.titleStr = @"召唤师列表";
+            
+            slistCell.detailStr = @"";
+            
+            slistCell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+            slistCell.selectionStyle = UITableViewCellSelectionStyleGray;
             
             return slistCell;
             
@@ -227,13 +242,15 @@
             
             //设置
             
-            MyUnion_SettingTableViewCell *settingCell = [tableView dequeueReusableCellWithIdentifier:@"settingCell"];
-        
-            if (settingCell == nil) {
-                
-                settingCell = [[MyUnion_SettingTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"settingCell"];
-                
-            }
+            MyUnion_TableViewCell *settingCell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+            
+            settingCell.titleStr = @"设置";
+            
+            settingCell.detailStr = @"";
+            
+            settingCell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+            settingCell.selectionStyle = UITableViewCellSelectionStyleGray;
             
             return settingCell;
             
@@ -243,20 +260,97 @@
         case 3:
         {
             
-            //关于
-            
-            MyUnion_AboutTableViewCell *aboutCell = [tableView dequeueReusableCellWithIdentifier:@"aboutCell"];
-            
-            if (aboutCell == nil) {
-                
-                aboutCell = [[MyUnion_AboutTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"aboutCell"];
-                
+             switch (indexPath.row) {
+                 case 0:
+                 {
+                     
+                     //意见反馈
+                     
+                     MyUnion_TableViewCell *questionCell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+                     
+                     questionCell.titleStr = @"常见问题";
+                     
+                     questionCell.detailStr = @"";
+                     
+                     questionCell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                     
+                     questionCell.selectionStyle = UITableViewCellSelectionStyleGray;
+                     
+                     return questionCell;
+                     
+                 }
+                     break;
+                     
+                case 1:
+                {
+                    
+                    //意见反馈
+                    
+                    MyUnion_TableViewCell *feedbackCell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+                    
+                    feedbackCell.titleStr = @"意见反馈";
+                    
+                    feedbackCell.detailStr = @"";
+                    
+                    feedbackCell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                    
+                    feedbackCell.selectionStyle = UITableViewCellSelectionStyleGray;
+                    
+                    return feedbackCell;
+                    
+                }
+                    break;
+                     
+                 case 2:
+                 {
+                     
+                     //评分
+                     
+                     MyUnion_TableViewCell *scoreCell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+                     
+                     scoreCell.titleStr = @"评分";
+                     
+                     scoreCell.detailStr = @"";
+                     
+                     scoreCell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                     
+                     scoreCell.selectionStyle = UITableViewCellSelectionStyleNone;
+                     
+                     return scoreCell;
+                     
+                 }
+                     break;
+                    
+                case 3:
+                {
+                    
+                    //关于
+                    
+                    MyUnion_TableViewCell *aboutCell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+                    
+                    aboutCell.titleStr = @"关于";
+                    
+                    aboutCell.detailStr = @"V 1.0.0";
+                    
+                    aboutCell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                    
+                    aboutCell.selectionStyle = UITableViewCellSelectionStyleGray;
+                    
+                    return aboutCell;
+                    
+                }
+                    break;
+                    
+                default:
+                    
+                    return nil;
+                    
+                    break;
             }
-            
-            return aboutCell;
             
         }
             break;
+            
             
             
         default:
@@ -385,11 +479,70 @@
         case 3:
         {
             
-            //关于
-            
-            self.aboutVC.hidesBottomBarWhenPushed = YES;//隐藏tabbar
-            
-            [self.navigationController pushViewController:self.aboutVC animated:YES];
+            switch (indexPath.row) {
+                    
+                case 0:
+                {
+                    
+                    //常见问题
+                    
+                    self.FAQVC.hidesBottomBarWhenPushed = YES;//隐藏tabbar
+                    
+                    [self.navigationController pushViewController:self.FAQVC animated:YES];
+                    
+                }
+                    break;
+                    
+                case 1:
+                {
+                    
+                    //意见反馈
+                    
+                    self.feedbackVC.hidesBottomBarWhenPushed = YES;//隐藏tabbar
+                    
+                    [self.navigationController pushViewController:self.feedbackVC animated:YES];
+                    
+//                    [self presentViewController:[UMFeedback feedbackModalViewController] animated:YES completion:^{
+//                        
+//                    }];
+                    
+                }
+                    break;
+                    
+                case 2:
+                {
+                    
+                    //评分
+                    
+                    NSString *str = [NSString stringWithFormat:@"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=xxxxxx" ];
+                   
+                    if( ([[[UIDevice currentDevice] systemVersion] doubleValue]>=7.0)){
+                    
+                        str = [NSString stringWithFormat:@"itms-apps://itunes.apple.com/app/idxxxxxxx"];
+                    
+                    }
+                    
+                    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
+                    
+                }
+                    break;
+                    
+                case 3:
+                {
+                 
+                    //关于
+                    
+                    self.aboutVC.hidesBottomBarWhenPushed = YES;//隐藏tabbar
+                    
+                    [self.navigationController pushViewController:self.aboutVC animated:YES];
+                    
+                }
+                    break;
+                
+                default:
+                    
+                    break;
+            }
             
             
         }
@@ -410,7 +563,7 @@
 
 
 
-
+#pragma mark ---视图出现时
 
 -(void)viewWillAppear:(BOOL)animated{
     
@@ -450,6 +603,18 @@
     
 }
 
+-(FAQViewController *)FAQVC{
+    
+    if (_FAQVC == nil) {
+        
+        _FAQVC = [[FAQViewController alloc]init];
+        
+    }
+    
+    return _FAQVC;
+    
+}
+
 -(SettingViewController *)settringVC{
     
     if (_settringVC == nil) {
@@ -460,6 +625,18 @@
     
     return _settringVC;
 
+}
+
+-(FeedbackViewController *)feedbackVC{
+    
+    if (_feedbackVC == nil) {
+        
+        _feedbackVC = [[FeedbackViewController alloc]init];
+        
+    }
+    
+    return _feedbackVC;
+    
 }
 
 - (AboutViewController *)aboutVC {

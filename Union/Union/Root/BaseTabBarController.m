@@ -2,7 +2,7 @@
 //  BaseTabBarController.m
 //  Union
 //
-//  Created by 李响 on 15/7/26.
+//  Created by 张展 on 15/7/26.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -17,6 +17,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -37,7 +40,6 @@
 //当前viewcontroller支持哪些转屏方向
 
 -(NSUInteger)supportedInterfaceOrientations{
-    
     
     return UIInterfaceOrientationMaskPortrait;
 }

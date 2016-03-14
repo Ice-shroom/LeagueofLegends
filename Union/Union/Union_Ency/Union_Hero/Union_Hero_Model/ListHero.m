@@ -2,7 +2,7 @@
 //  FreeHero.m
 //  Union
 //
-//  Created by 李响 on 15/7/16.
+//  Created by 张展 on 15/7/16.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -95,7 +95,6 @@
     
 }
 
-
 -(void)dealloc {
     
     [_location release];
@@ -111,6 +110,20 @@
     [_price release];
     
     [_rating release];
+    
+    [_ratingA release];
+    
+    [_ratingB release];
+    
+    [_ratingC release];
+    
+    [_ratingD release];
+    
+    [_goldPrice release];
+    
+    [_couponsPrice release];
+    
+    [_presentTimes release];
     
     [super dealloc];
     

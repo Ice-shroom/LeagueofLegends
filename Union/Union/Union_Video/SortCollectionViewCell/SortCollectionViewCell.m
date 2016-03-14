@@ -32,9 +32,11 @@
 
     if (self = [super initWithFrame:frame]) {
         
-        //布局
+        //初始化图片视图
         
         _imageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - 20)];
+        
+        _imageView.image = [UIImage imageNamed:@"poluoimage_gray"];
         
         //添加到cell上
         
@@ -49,7 +51,7 @@
         
         //字体大小
         
-        _titleLable.font = [UIFont systemFontOfSize:14];
+        _titleLable.font = [UIFont systemFontOfSize:12];
         
         //字体颜色
         
@@ -94,7 +96,12 @@
         _sortModel = [sortModel retain];
     
     }
-
+    
+    //SDWebImage异步加载图片
+    
+    NSURL *picUrl = [NSURL URLWithString:sortModel.icon];
+    
+    [_imageView sd_setImageWithURL:picUrl placeholderImage:[UIImage imageNamed:@"poluoimage_gray"]];
 
     //判断sortModel.dailyUpdate中是否有0这个字符串
     
@@ -130,11 +137,11 @@
 
         //显示类型
        
-        string = [NSString stringWithFormat:@"最新%ld+个",daiInteger];
+        string = [NSString stringWithFormat:@"最新%ld+个",(long)daiInteger];
         
     } else {
     
-     string = [NSString stringWithFormat:@"最新%ld个",daiInteger];
+     string = [NSString stringWithFormat:@"最新%ld个",(long)daiInteger];
         
     }
     

@@ -2,7 +2,7 @@
 //  MyHeroTableViewHeaderView.m
 //  Union
 //
-//  Created by 李响 on 15/7/19.
+//  Created by 张展 on 15/7/19.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -74,7 +74,7 @@
         
         _titleLabel.text = [NSString stringWithFormat:@"英雄资产(%@)",self.serverFullName];
         
-        _descLabel.text = [NSString stringWithFormat:@"您总共有%ld个英雄,价值%ld金币",self.heroCount , self.heroGoldPrice];
+        _descLabel.text = [NSString stringWithFormat:@"您总共有%ld个英雄,价值%ld金币",(long)self.heroCount , (long)self.heroGoldPrice];
         
     }
     

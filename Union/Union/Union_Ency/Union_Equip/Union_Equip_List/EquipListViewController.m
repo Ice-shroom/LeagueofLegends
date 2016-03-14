@@ -2,7 +2,7 @@
 //  EquipListViewController.m
 //  Union
 //
-//  Created by 李响 on 15/8/4.
+//  Created by 张展 on 15/8/4.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -53,6 +53,8 @@ static NSString * const reuseIdentifier = @"Cell";
     
     [_equipDetailsVC release];
     
+    [_typeModel release];
+    
     [super dealloc];
     
 }
@@ -62,15 +64,6 @@ static NSString * const reuseIdentifier = @"Cell";
     
     self.title = @"装备分类";
     
-    self.view.backgroundColor = [UIColor whiteColor];
-    
-    //添加导航栏左按钮
-    
-    UIBarButtonItem *leftBarButton = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-fanhui"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(leftBarButtonAction:)];
-    
-    leftBarButton.tintColor = [UIColor whiteColor];
-    
-    self.navigationItem.leftBarButtonItem = leftBarButton;
     
     [self.view addSubview:self.collectionView];
     
@@ -111,6 +104,7 @@ static NSString * const reuseIdentifier = @"Cell";
 
 -(void)loadData{
     
+
     //请求数据
     
     __block typeof(self) Self = self;
@@ -131,7 +125,7 @@ static NSString * const reuseIdentifier = @"Cell";
             
             //将数据缓存到本地 指定数据名
             
-            [[DataCache shareDataCache] saveDataForDocumentWithData:responseObject DataName:[NSString stringWithFormat:@"EquipList%@Data" , self.typeModel.tag]];
+            [[DataCache shareDataCache] saveDataForDocumentWithData:responseObject DataName:[NSString stringWithFormat:@"EquipList%@Data" , self.typeModel.tag] Classify:@"Equip"];
             
         } else {
             
@@ -172,16 +166,21 @@ static NSString * const reuseIdentifier = @"Cell";
 
 - (void)loadLocallData
 {
+
     
     //查询本地缓存 指定数据名
     
-    id caCheData = [[DataCache shareDataCache] getDataForDocumentWithDataName:[NSString stringWithFormat:@"EquipList%@Data" , self.typeModel.tag]];
+    id caCheData = [[DataCache shareDataCache] getDataForDocumentWithDataName:[NSString stringWithFormat:@"EquipList%@Data" , self.typeModel.tag] Classify:@"Equip"];
     
     if (caCheData == nil) {
         
         //显示加载视图
         
         self.loadingView.hidden = NO;
+        
+        //隐藏集合视图
+        
+        self.collectionView.hidden = YES;
         
     } else {
         
@@ -202,6 +201,10 @@ static NSString * const reuseIdentifier = @"Cell";
 - (void)JSONAnalyticalWithData:(id)data{
     
     if (data != nil) {
+        
+        //显示集合视图
+        
+        self.collectionView.hidden = NO;
         
         //解析前清空数据源数组
         
@@ -226,6 +229,7 @@ static NSString * const reuseIdentifier = @"Cell";
             [self.dataArray addObject:model];
             
         }
+        
         //更新列表视图
         
         [self.collectionView reloadData];
@@ -262,8 +266,6 @@ static NSString * const reuseIdentifier = @"Cell";
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
     
-
-    
     return self.dataArray.count;
     
 }
@@ -291,14 +293,6 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 
-#pragma mark ---leftBarButtonAction
-
-- (void)leftBarButtonAction:(UIBarButtonItem *)sender{
-    
-    [self.navigationController popViewControllerAnimated:YES];
-    
-}
-
 
 #pragma mark ---LazyLoading
 
@@ -310,7 +304,11 @@ static NSString * const reuseIdentifier = @"Cell";
         
         //1.设置单元格的大小 ,itemSize
         
-        layout.itemSize = CGSizeMake( ( CGRectGetWidth(self.view.frame) - 50 ) / 4 , ( CGRectGetWidth(self.view.frame) - 50 ) / 4 + 30);
+        CGFloat itemWidth = ( CGRectGetWidth(self.view.frame) - 50 ) / 4;
+        
+        CGFloat itemHeight = ( CGRectGetWidth(self.view.frame) - 50 ) / 4;
+        
+        layout.itemSize = CGSizeMake( itemWidth > 64 ? 64 : itemWidth , itemHeight > 64 ? 64 + 30 : itemHeight + 30  );
         
         //2.设置最小左右间距,单元格之间
         
@@ -424,9 +422,11 @@ static NSString * const reuseIdentifier = @"Cell";
         
         _reloadImageView.center = CGPointMake(CGRectGetWidth(self.view.frame) / 2 , CGRectGetHeight(self.view.frame) / 2);
         
-        _reloadImageView.image = [UIImage imageNamed:@""];
+        _reloadImageView.image = [[UIImage imageNamed:@"reloadImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
-        _reloadImageView.backgroundColor = [UIColor lightGrayColor];
+        _reloadImageView.tintColor = [UIColor lightGrayColor];
+        
+        _reloadImageView.backgroundColor = [UIColor clearColor];
         
         [_reloadImageView addGestureRecognizer:reloadImageViewTap];
         

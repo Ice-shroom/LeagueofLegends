@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>UnionStatic.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>13</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
@@ -18,6 +23,11 @@
 			<true/>
 		</dict>
 		<key>9B00F5441B4161DC00597830</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9B456A831BA55F76009B2252</key>
 		<dict>
 			<key>primary</key>
 			<true/>

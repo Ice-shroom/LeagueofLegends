@@ -2,7 +2,7 @@
 //  Union_EncyViewController.m
 //  Union
 //
-//  Created by 李响 on 15/6/30.
+//  Created by 张展 on 15/6/30.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -17,9 +17,13 @@
 #import "PictureCycleView.h"
 
 
+#import "Union_News_Details_ViewController.h"
+
 #import "Union_Hero_ViewController.h"
 
 #import "Union_Equip_Type_List_ViewController.h"
+
+#import "Union_RunesViewController.h"
 
 
 
@@ -28,11 +32,11 @@
 
 @interface Union_EncyViewController ()
 
-@property (nonatomic , retain)NSMutableArray *dataArray;//数据源数组
+@property (nonatomic , retain) NSMutableArray *dataArray;//数据源数组
 
-@property (nonatomic , retain)NSMutableArray *itemViewArray;//Item视图数组
+@property (nonatomic , retain) NSMutableArray *itemViewArray;//Item视图数组
 
-@property (nonatomic , retain)UIScrollView *scrollView;//滑动视图
+@property (nonatomic , retain) UIScrollView *scrollView;//滑动视图
 
 @property (nonatomic , retain) NSMutableArray *pictureArray;//图片数据数组
 
@@ -41,10 +45,13 @@
 @property (nonatomic , retain) AFHTTPRequestOperationManager *manager;//AFNetWorking
 
 
+@property (nonatomic , retain) Union_News_Details_ViewController *detailsVC;//资讯详情视图控制器
 
-@property (nonatomic , retain)Union_Hero_ViewController *heroVC;//英雄视图控制器
+@property (nonatomic , retain) Union_Hero_ViewController *heroVC;//英雄视图控制器
 
-@property (nonatomic , retain)Union_Equip_Type_List_ViewController *equipTypeListVC;//装备类型列表视图控制器
+@property (nonatomic , retain) Union_Equip_Type_List_ViewController *equipTypeListVC;//装备类型列表视图控制器
+
+@property (nonatomic , retain) Union_RunesViewController *runesVC;//符文视图控制器
 
 
 
@@ -52,7 +59,50 @@
 
 @implementation Union_EncyViewController
 
+-(void)dealloc{
+    
+    [_dataArray release];
+    
+    [_itemViewArray release];
+    
+    [_scrollView release];
+    
+    [_pictureCycleView release];
+    
+    [_pictureArray release];
+    
+    [_manager release];
+    
+    [_heroVC release];
+    
+    [_equipTypeListVC release];
+    
+    [_detailsVC release];
+    
+    [_runesVC release];
+    
+    //移除所有通知监控
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    [super dealloc];
+    
+}
 
+//初始化
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        
+        //注册通知 获取轮播图片数据数组
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pictureDataArray:) name:@"PictureDataArray" object:nil];
+        
+    }
+    return self;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -68,25 +118,65 @@
 
 }
 
+-(void)setPictureArray:(NSMutableArray *)pictureArray{
+    
+    if (_pictureArray != pictureArray) {
+        
+        [_pictureArray release];
+        
+        _pictureArray = [pictureArray retain];
+        
+    }
+    
+    if (pictureArray != nil) {
+        
+        if (_pictureCycleView != nil) {
+            
+            //为图片轮播视图添加数据数组
+            
+            self.pictureCycleView.dataArray = self.pictureArray;
+            
+        }
+    }
+    
+    
+}
+
 //加载轮播视图
 
 - (void)loadPictureCycleView{
     
-    //初始化图片轮播视图
+    //为图片轮播视图添加数据数组
     
-    _pictureCycleView = [[PictureCycleView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.scrollView.frame), CGRectGetWidth(self.scrollView.frame) / 7 * 4)];
+    self.pictureCycleView.dataArray = self.pictureArray;
+
     
-    _pictureCycleView.timeInterval = 3.0f;
+    __block typeof(self) Self = self;
     
-    _pictureCycleView.isPicturePlay = YES;
-    
-    _pictureCycleView.selectedPictureBlock = ^(PictureCycleModel *model){
+    self.pictureCycleView.selectedPictureBlock = ^(PictureCycleModel *model){
         
         //跳转相应的详情页面
+        
+        Self.detailsVC.urlString = [NSString stringWithFormat:@"%@%@",News_WebViewURl,model.pid];
+        
+        [Self.navigationController pushViewController:Self.detailsVC animated:YES];
 
     };
 
-    [self.scrollView addSubview:_pictureCycleView];
+    [self.scrollView addSubview:self.pictureCycleView];
+    
+    //隐藏tabBar
+    
+    self.detailsVC.hidesBottomBarWhenPushed = YES;
+    
+}
+
+//发送消息之后  会响应的方法
+
+- (void)pictureDataArray:(NSNotification *)notification
+{
+    
+    self.pictureArray = [notification.userInfo objectForKey:@"pictureArray"];
     
 }
 
@@ -97,7 +187,7 @@
     
     NSArray *nameArray = @[@"英雄",@"装备",@"天赋",@"符文",@"最佳阵容",@"召唤师技能"];
     
-    NSArray *iconArray = @[@"Ency_Orlanna",@"Ency_Riven",@"Ency_Ashe",@"Ency_Akali",@"Ency_Janna",@"Ency_Sona"];
+    NSArray *iconArray = @[@"ency_demaxiya",@"ency_nuokesasi",@"ency_aiouniya",@"ency_zhanzhengxueyuan",@"ency_bierjiwote",@"ency_zuoen"];
     
     for (int i = 0 ; i < nameArray.count ; i++) {
         
@@ -219,6 +309,11 @@
             break;
         case 3:
             //符文
+            
+            self.runesVC.hidesBottomBarWhenPushed = YES;
+            
+            [self.navigationController pushViewController:self.runesVC animated:YES];
+            
             break;
         case 4:
             //最佳阵容
@@ -236,7 +331,11 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
+    //清空内存中的图片缓存
+    
+    [[SDImageCache sharedImageCache] clearMemory];
+    
 }
 
 
@@ -298,17 +397,25 @@
     
 }
 
--(NSMutableArray *)pictureArray{
+-(PictureCycleView *)pictureCycleView{
     
-    if (_pictureArray == nil) {
+    if (_pictureCycleView == nil) {
         
-        _pictureArray = [[NSMutableArray alloc]init];
+        //初始化图片轮播视图
+        
+        _pictureCycleView = [[PictureCycleView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.scrollView.frame), CGRectGetWidth(self.scrollView.frame) / 7 * 4)];
+        
+        _pictureCycleView.timeInterval = 3.0f;
+        
+        _pictureCycleView.isPicturePlay = YES;
         
     }
     
-    return _pictureArray;
+    return _pictureCycleView;
     
 }
+
+
 
 -(AFHTTPRequestOperationManager *)manager{
     
@@ -327,6 +434,18 @@
     }
     
     return _manager;
+    
+}
+
+-(Union_News_Details_ViewController *)detailsVC{
+    
+    if (_detailsVC == nil) {
+        
+        _detailsVC = [[Union_News_Details_ViewController alloc]init];
+        
+    }
+    
+    return _detailsVC;
     
 }
 
@@ -350,6 +469,18 @@
     }
     
     return _equipTypeListVC;
+    
+}
+
+-(Union_RunesViewController *)runesVC{
+    
+    if (_runesVC == nil) {
+        
+        _runesVC = [[Union_RunesViewController alloc]init];
+        
+    }
+    
+    return _runesVC;
     
 }
 

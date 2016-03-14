@@ -2,7 +2,7 @@
 //  Union_Equip_Type_List_ViewController.m
 //  Union
 //
-//  Created by 李响 on 15/8/4.
+//  Created by 张展 on 15/8/4.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -63,15 +63,7 @@ static NSString * const reuseIdentifier = @"Cell";
     
     self.title = @"装备分类";
     
-    self.view.backgroundColor = [UIColor whiteColor];
     
-    //添加导航栏左按钮
-    
-    UIBarButtonItem *leftBarButton = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-fanhui"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(leftBarButtonAction:)];
-    
-    leftBarButton.tintColor = [UIColor whiteColor];
-    
-    self.navigationItem.leftBarButtonItem = leftBarButton;
 
     [self.view addSubview:self.collectionView];
     
@@ -96,9 +88,9 @@ static NSString * const reuseIdentifier = @"Cell";
 
 -(void)loadData{
     
-    //查询本地缓存 指定数据名
+    //查询本地缓存 指定数据名 和 分组名
     
-    id caCheData = [[DataCache shareDataCache] getDataForDocumentWithDataName:@"EquipTypeListData"];
+    id caCheData = [[DataCache shareDataCache] getDataForDocumentWithDataName:@"EquipTypeListData" Classify:@"Equip"];
     
     if (caCheData == nil) {
         
@@ -137,9 +129,9 @@ static NSString * const reuseIdentifier = @"Cell";
             
             [Self JSONAnalyticalWithData:responseObject];
             
-            //将数据缓存到本地 指定数据名
+            //将数据缓存到本地 指定数据名 和分组名
             
-            [[DataCache shareDataCache] saveDataForDocumentWithData:responseObject DataName:@"EquipTypeListData"];
+            [[DataCache shareDataCache] saveDataForDocumentWithData:responseObject DataName:@"EquipTypeListData"  Classify:@"Equip"];
             
         } else {
             
@@ -260,13 +252,7 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 
-#pragma mark ---leftBarButtonAction
 
-- (void)leftBarButtonAction:(UIBarButtonItem *)sender{
-    
-    [self.navigationController popViewControllerAnimated:YES];
-    
-}
 
 #pragma mark ---LazyLoading
 
@@ -378,9 +364,11 @@ static NSString * const reuseIdentifier = @"Cell";
         
         _reloadImageView.center = CGPointMake(CGRectGetWidth(self.view.frame) / 2 , CGRectGetHeight(self.view.frame) / 2);
         
-        _reloadImageView.image = [UIImage imageNamed:@""];
+        _reloadImageView.image = [[UIImage imageNamed:@"reloadImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
-        _reloadImageView.backgroundColor = [UIColor lightGrayColor];
+        _reloadImageView.tintColor = [UIColor lightGrayColor];
+        
+        _reloadImageView.backgroundColor = [UIColor clearColor];
         
         [_reloadImageView addGestureRecognizer:reloadImageViewTap];
         

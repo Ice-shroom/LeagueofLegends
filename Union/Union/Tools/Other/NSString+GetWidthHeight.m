@@ -2,7 +2,7 @@
 //  NSString+GetWidthHeight.m
 //  
 //
-//  Created by 李响 on 15/6/9.
+//  Created by 张展 on 15/6/9.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -16,7 +16,7 @@
     //获取字符串显示高度
     NSDictionary *dic=@{NSFontAttributeName:[UIFont systemFontOfSize:fontsize]};
     
-    CGRect rect=[string boundingRectWithSize:CGSizeMake(width, 1000000000) options:(NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin) attributes:dic context:nil];
+    CGRect rect=[string boundingRectWithSize:CGSizeMake(width, MAXFLOAT) options:(NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin) attributes:dic context:nil];
     
     return rect.size.height;
 }

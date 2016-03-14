@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface VideoListViewController : UIViewController
+#import "BaseViewController.h"
+
+@interface VideoListViewController : BaseViewController
 
 @property (nonatomic , copy) NSString * string;
 

@@ -2,7 +2,7 @@
 //  EquipTypeListCollectionViewCell.m
 //  Union
 //
-//  Created by 李响 on 15/8/4.
+//  Created by 张展 on 15/8/4.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -33,11 +33,21 @@
     
     if (self) {
         
-        self.backgroundColor = MAINCOLOER;
+        self.backgroundColor = [UIColor clearColor];
+        
+        UIImageView *backgroundImageView = [[UIImageView alloc]initWithImage:[[UIImage imageNamed:@"HoneycombBackground"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        
+        backgroundImageView.tintColor = MAINCOLOER;
+        
+        backgroundImageView.frame = self.frame;
+        
+        self.backgroundView = backgroundImageView;
+        
+        [backgroundImageView release];
         
         //初始化标题Label
         
-        _titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 0, CGRectGetWidth(self.frame) - 10, CGRectGetHeight(self.frame)    )];
+        _titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 0, CGRectGetWidth(self.frame) - 10, CGRectGetHeight(self.frame))];
         
         _titleLabel.textColor = [UIColor whiteColor];
         
@@ -85,7 +95,7 @@
     
     //设置cell蜂窝样式
     
-    [self settingCellHoneycombStyle];
+//    [self settingCellHoneycombStyle];
     
 }
 

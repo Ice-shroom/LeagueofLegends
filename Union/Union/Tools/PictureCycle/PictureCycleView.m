@@ -2,7 +2,7 @@
 //  PictureCycleView.m
 //  Union
 //
-//  Created by 李响 on 15/7/27.
+//  Created by 张展 on 15/7/27.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -368,7 +368,12 @@
 }
 
 
+
 #pragma mark ---UIScrollViewDelegate
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    
+}
 
 // 滑动视图，当手指离开屏幕那一霎那，调用该方法。一次有效滑动，只执行一次。
 // decelerate,指代，当我们手指离开那一瞬后，视图是否还将继续向前滚动（一段距离），经过测试，decelerate=YES

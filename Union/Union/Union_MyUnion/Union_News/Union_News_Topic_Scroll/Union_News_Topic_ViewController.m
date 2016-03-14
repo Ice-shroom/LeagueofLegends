@@ -2,7 +2,7 @@
 //  Union_News_Topic_ViewController.m
 //  Union
 //
-//  Created by lanou3g on 15/7/20.
+//  Created by 张展 on 15/7/21.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -26,8 +26,14 @@
 
 #import "NSString+URL.h"
 
+#import "NSString+SensitiveWords.h"
 
-@interface Union_News_Topic_ViewController ()<UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate,GearPoweredDelegate>
+#import "Union_Video_VideoListTableView.h"
+
+#import "VideoPlayerViewController.h"
+
+
+@interface Union_News_Topic_ViewController ()<UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate,UIWebViewDelegate,GearPoweredDelegate>
 
 @property (nonatomic, retain) TabView *tabView;//标签导航栏视图
 
@@ -54,7 +60,9 @@
 @property (nonatomic ,retain) UIImageView *reloadImageView;//重新加载图片视图
 
 
+@property (nonatomic , retain) Union_News_Topic_ViewController *topicVC;//专题视图控制器
 
+@property (nonatomic , retain) Union_Video_VideoListTableView *videoListTableView;//视频列表视图
 
 @end
 
@@ -84,38 +92,25 @@
     
     [_liveWebUrlDic release];
     
+    [_videoListTableView release];
+    
+    [_topicVC release];
+    
     [super dealloc];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    self.view.backgroundColor = [UIColor whiteColor];
-    
-    //添加导航栏左按钮
-    
-    UIBarButtonItem *leftBarButton = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-fanhui"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(leftBarButtonAction:)];
-    
-    leftBarButton.tintColor = [UIColor whiteColor];
-    
-    self.navigationItem.leftBarButtonItem = leftBarButton;
 
     
     //加载视图控件
-    
-    [self addWebView];
     
     [self addTableView];
 
     [self addDistricthead];
     
-    
-    
-    
-    
 
-    
   }
 #pragma mark 重写set方法
 
@@ -144,12 +139,6 @@
     }
     
 }
-
-
-
-
-
-
 
 #pragma mark ---- 区头图片
 
@@ -209,36 +198,18 @@
             
             break;
             
-        case 1:
+        default:
             
             [self.view bringSubviewToFront:self.liveWebView];
             
-            NSURL *lurl = [NSURL  URLWithString:[self.liveWebUrlDic valueForKey:[NSString stringWithFormat:@"%ld",selectIndex]]];
+            NSURL *lurl = [NSURL  URLWithString:[self.liveWebUrlDic valueForKey:[NSString stringWithFormat:@"%ld",(long)selectIndex]]];
             
             NSURLRequest *lrequest = [NSURLRequest requestWithURL:lurl];
             
             [self.liveWebView loadRequest:lrequest];
-
-
+            
             break;
             
-        case 2:
-            
-           
-            [self.view bringSubviewToFront:self.liveWebView];
-            
-            NSURL *url = [NSURL  URLWithString:[self.liveWebUrlDic valueForKey:[NSString stringWithFormat:@"%ld",selectIndex]] ];
-            
-            NSURLRequest *request = [NSURLRequest requestWithURL:url];
-            
-            // 添加响应
-            
-            [self.liveWebView loadRequest:request];
-
-            break;
-            
-        default:
-            break;
     }
     
 }
@@ -265,19 +236,6 @@
     [_tableView registerClass:[Union_News_TableViewCell class] forCellReuseIdentifier:@"CELL"];
     
     
-    
-}
-
-#pragma mark ------加载webView
-
-- (void)addWebView{
-    
-    //加载webView
-    
-    _liveWebView = [[UIWebView alloc]initWithFrame:CGRectMake( 0 , 40, self.view.frame.size.width, self.view.frame.size.height - 40 - 64)];
-    
-    [self.view addSubview:_liveWebView];
-
     
 }
 
@@ -386,7 +344,7 @@
         
         [self.tabArray addObject:[[dataItem valueForKey:@"title"] retain]];
         
-        NSString *type = [[dataItem valueForKey:@"type"] autorelease];
+        NSString *type = [dataItem valueForKey:@"type"];
         
         //专题数据
         
@@ -398,7 +356,7 @@
             
             self.title = [tempDataDic valueForKey:@"title"];
             
-            self.titleLabel.text = [tempDataDic valueForKey:@"content"];
+            self.titleLabel.text = [[tempDataDic valueForKey:@"content"] removeSensitiveWordsWithArray:@[@"手机盒子"]];
             
             //加载图片
             
@@ -427,8 +385,8 @@
             
             //将webURL在数组中的下标作为KEY url作为Value 添加进字典中
             
-            [self.liveWebUrlDic setValue:[[dataItem valueForKey:@"url"] retain] forKey:[NSString stringWithFormat:@"%ld",webIndex]];
-            
+            [self.liveWebUrlDic setValue:[[dataItem valueForKey:@"url"] retain] forKey:[NSString stringWithFormat:@"%ld",(long)webIndex]];
+
         }
         
         webIndex ++;
@@ -439,6 +397,26 @@
         //为标签导航栏添加数据数组
         
         self.tabView.dataArray = [NSArray arrayWithArray:self.tabArray];
+        
+        //通过判断标签导航数组元素个数 判断是否只包含一个表视图
+        
+        if (self.tabArray.count > 1) {
+            
+            //显示标签导航栏 设置表视图高度
+            
+            self.tabView.hidden = NO;
+            
+            self.tableView.frame = CGRectMake(0, 40, self.view.frame.size.width, self.view.frame.size.height - 40 );
+            
+        } else {
+            
+            //隐藏标签导航栏 设置表视图高度
+            
+            self.tabView.hidden = YES;
+            
+            self.tableView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+            
+        }
         
     }
     
@@ -509,6 +487,111 @@
 }
 
 
+#pragma mark ---UIWebViewDelegate
+
+-(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType{
+    
+    //判断类型 根据不同类型 进行不同处理
+    
+    NSString *urlString = [request.URL absoluteString];
+
+    //通过url字符串 判断播放 或 专题
+    
+    return [self webViewVideoORTopicWithUrl:urlString];
+    
+}
+
+//通过url字符串 判断播放 或 专题
+
+-(BOOL)webViewVideoORTopicWithUrl:(NSString *)urlString{
+    
+    //判断是否以指定域名链接开头
+    
+    if ([urlString hasPrefix:@"http://box.dwstatic.com/unsupport"]) {
+        
+        NSString *vid = nil;
+        
+        NSString *topicId = nil;
+        
+        NSString *type = nil;
+        
+        //去除域名部分
+        
+        urlString = [urlString stringByReplacingOccurrencesOfString:@"http://box.dwstatic.com/unsupport" withString:@""];
+        
+        NSRange range = [urlString rangeOfString:@"?"];
+        
+        urlString = [urlString substringFromIndex:range.location + range.length];
+        
+        //分隔字符串 获取参数
+        
+        NSArray *tempArray = [urlString componentsSeparatedByString:@"&"];
+        
+        for (NSString *item in tempArray) {
+            
+            if ([item hasPrefix:@"vid="]) {
+                
+                vid = [item substringFromIndex:4];
+                
+            }
+            
+            if ([item hasPrefix:@"topicId="]) {
+                
+                topicId = [item substringFromIndex:8];
+            
+            }
+            
+            if ([item hasPrefix:@"lolboxAction="]) {
+                
+                type = [item substringFromIndex:13];
+                
+            }
+            
+            
+            
+        }
+        
+        //判断类型
+        
+        if (vid != nil || type != nil || topicId != nil) {
+            
+            if ([type isEqualToString:@"videoPlay"]) {
+                
+                //播放视频
+                
+                //根据vid查询视频详情数据 并跳转视频播放
+                
+                [self.videoListTableView netWorkingGetVideoDetailsWithVID:vid Title:self.title];
+                
+            } else if ( [type isEqualToString:@"toNewsTopic"]){
+                
+                //专题
+                
+                //拼接专题URL 并跳转
+                
+                self.topicVC.urlString = [NSString stringWithFormat:News_TopicURL , topicId ];
+                
+                [self.navigationController pushViewController:self.topicVC animated:YES];
+                
+            }
+            
+            
+        }
+        
+        return NO;
+        
+    } else {
+        
+        return YES;
+        
+    }
+    
+    //http://box.dwstatic.com/unsupport.php?vu=&vid=140561&lolboxAction=videoPlay
+    
+    
+}
+
+
 #pragma mark ---GearPoweredDelegate
 
 -(void)didLoadData:(id)data{
@@ -572,6 +655,55 @@
     }
     
     return _tabView;
+}
+
+-(UIWebView *)liveWebView{
+    
+    if (_liveWebView == nil) {
+        
+        _liveWebView = [[UIWebView alloc]initWithFrame:CGRectMake( 0 , 40, self.view.frame.size.width, self.view.frame.size.height - 40)];
+        
+        //自适应屏幕
+        
+        _liveWebView.scalesPageToFit = YES;
+        
+        _liveWebView.dataDetectorTypes = UIDataDetectorTypeAll;
+        
+        _liveWebView.delegate = self;
+        
+        [self.view addSubview:_liveWebView];
+        
+        
+    }
+    
+    return _liveWebView;
+
+    
+}
+
+-(Union_Video_VideoListTableView *)videoListTableView{
+    
+    if (_videoListTableView == nil) {
+        
+        _videoListTableView = [[Union_Video_VideoListTableView alloc]init];
+        
+        _videoListTableView.rootVC = self;
+        
+    }
+    
+    return _videoListTableView;
+}
+
+-(Union_News_Topic_ViewController *)topicVC{
+    
+    if (_topicVC == nil) {
+        
+        _topicVC = [[Union_News_Topic_ViewController alloc]init];
+        
+    }
+    
+    return _topicVC;
+    
 }
 
 -(AFHTTPRequestOperationManager *)manager{
@@ -683,9 +815,11 @@
         
         _reloadImageView.center = CGPointMake(CGRectGetWidth(self.view.frame) / 2 , CGRectGetHeight(self.view.frame) / 2);
         
-        _reloadImageView.image = [UIImage imageNamed:@""];
+        _reloadImageView.image = [[UIImage imageNamed:@"reloadImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
-        _reloadImageView.backgroundColor = [UIColor lightGrayColor];
+        _reloadImageView.tintColor = [UIColor lightGrayColor];
+        
+        _reloadImageView.backgroundColor = [UIColor clearColor];
         
         [_reloadImageView addGestureRecognizer:reloadImageViewTap];
         

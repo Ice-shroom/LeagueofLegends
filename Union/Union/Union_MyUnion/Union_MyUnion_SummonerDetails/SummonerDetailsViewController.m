@@ -2,7 +2,7 @@
 //  SummonerDetailsViewController.m
 //  Union
 //
-//  Created by 李响 on 15/7/20.
+//  Created by 张展 on 15/7/20.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -55,20 +55,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    self.view.backgroundColor = [UIColor whiteColor];
-    
     self.title = @"召唤师详情";
-    
-    //添加导航栏左按钮
-    
-    UIBarButtonItem *leftBarButton = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-fanhui"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(leftBarButtonAction:)];
-    
-    leftBarButton.tintColor = [UIColor whiteColor];
-    
-    self.navigationItem.leftBarButtonItem = leftBarButton;
 
-   
-    
     
 }
 
@@ -363,15 +351,6 @@
     }
     
     return _reloadImageView;
-    
-}
-
-
-#pragma mark ---leftBarButtonAction
-
-- (void)leftBarButtonAction:(UIBarButtonItem *)sender{
-    
-    [self.navigationController popViewControllerAnimated:YES];
     
 }
 

@@ -2,7 +2,7 @@
 //  UIView+LXAlertView.m
 //  LXAlertView
 //
-//  Created by 李响 on 2/16/15.
+//  Created by 张展 on 2/16/15.
 //  Copyright (c) 2015 Persource. All rights reserved.
 //
 
@@ -18,6 +18,7 @@
 #define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
 #define NOTIFIER_LABEL_FONT ([UIFont fontWithName:@"HelveticaNeue-Light" size:18])
+
 #define NOTIFIER_CANCEL_FONT ([UIFont fontWithName:@"HelveticaNeue" size:13])
 
 static const NSInteger kTagLXAlertView = 19940;
@@ -117,8 +118,6 @@ static const CGFloat kMaxWidth = 290.0f;
             //如果不退出
             
             if(!shouldDismiss) {
-            
-                
                 
                 //首先显示一个分隔图片
                 
@@ -223,6 +222,7 @@ static const CGFloat kMaxWidth = 290.0f;
 }
 
 + (UIView* ) checkIfNotifierExistsAlready {
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(dismissLXNotifier) object:nil];
     
     UIView* notifier = nil;
@@ -247,16 +247,23 @@ static const CGFloat kMaxWidth = 290.0f;
     UIView* notifier = nil;
     
     for (UIView* subview in [APPDELEGATE.window subviews]) {
+        
         if(subview.tag == kTagLXAlertView && [subview isKindOfClass:[UIView class]]) {
+        
             notifier = subview;
+        
         }
+    
     }
     
     [self startExitAnimation:notifier];
+    
 }
 
 + (void) buttonCancelClicked : (id) sender {
+    
     [self dismissLXNotifier];
+
 }
 
 + (void) notifierViewTapAction:(UITapGestureRecognizer *)tap{
@@ -287,30 +294,44 @@ static const CGFloat kMaxWidth = 290.0f;
 + (void) startEntryAnimation : (UIView* ) notifierView withFinalFrame : (CGRect) finalFrame {
     
     CGFloat finalYOffset = finalFrame.origin.y;
+    
     finalFrame.origin.y = finalFrame.origin.y - 15;
     
     CATransform3D transform = [self transformWithXAxisValue:-0.1 andAngle:45];
+    
     notifierView.layer.zPosition = 400;
+    
     notifierView.layer.transform = transform;
 
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+    
         notifierView.frame = finalFrame;
         
         CATransform3D transform = [self transformWithXAxisValue:0.1 andAngle:15];
+        
         notifierView.layer.zPosition = 400;
+        
         notifierView.layer.transform = transform;
 
     } completion:^(BOOL finished) {
+        
         [UIView animateWithDuration:0.4 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        
             CGRect atLastFrame = finalFrame;
+            
             atLastFrame.origin.y = finalYOffset;
+            
             notifierView.frame = atLastFrame;
             
+            
             CATransform3D transform = [self transformWithXAxisValue:0.0 andAngle:90];
+            
             notifierView.layer.zPosition = 400;
+            
             notifierView.layer.transform = transform;
 
         } completion:^(BOOL finished) {
+            
         }];
     }];
 }
@@ -322,30 +343,53 @@ static const CGFloat kMaxWidth = 290.0f;
     CGRect screenBounds = APPDELEGATE.window.bounds;
 
     CGRect notifierFrame = notifierView.frame;
+   
     CGFloat finalYOffset = notifierFrame.origin.y - 12;
+    
     notifierFrame.origin.y = finalYOffset;
     
     [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        
         notifierView.frame = notifierFrame;
         
         CATransform3D transform = [self transformWithXAxisValue:0.1 andAngle:30];
+        
         notifierView.layer.zPosition = 400;
+        
         notifierView.layer.transform = transform;
 
     } completion:^(BOOL finished) {
+        
         [UIView animateWithDuration:0.15 delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+            
             CGRect atLastFrame = notifierView.frame;
+        
             atLastFrame.origin.y = CGRectGetHeight(screenBounds);
+            
             notifierView.frame = atLastFrame;
             
             CATransform3D transform = [self transformWithXAxisValue:-1 andAngle:90];
+            
             notifierView.layer.zPosition = 400;
+            
             notifierView.layer.transform = transform;
 
         } completion:^(BOOL finished) {
+            
             [notifierView removeFromSuperview];
+            
+            [self removeNotifierView:notifierView];
+            
         }];
+        
     }];
+    
+}
+
++ (void)removeNotifierView:(UIView *)notifierView{
+    
+    notifierView = nil;
+    
 }
 
 + (CATransform3D) transformWithXAxisValue : (CGFloat) xValue  andAngle : (CGFloat) valueOfAngle {

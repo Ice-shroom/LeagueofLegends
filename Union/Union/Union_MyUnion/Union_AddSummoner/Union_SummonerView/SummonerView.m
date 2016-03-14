@@ -2,7 +2,7 @@
 //  SummonerView.m
 //  Union
 //
-//  Created by 李响 on 15/7/19.
+//  Created by 张展 on 15/7/19.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -198,9 +198,9 @@
         
         _serverFullNameLabel.text = [NSString stringWithFormat:@"%@  %@",SM.serverFullName , SM.serverName];
         
-        _tierDescLabel.text = [NSString stringWithFormat:@"%@  %ld",SM.tierDesc , SM.leaguePoints];
+        _tierDescLabel.text = [NSString stringWithFormat:@"%@  %ld",SM.tierDesc , (long)SM.leaguePoints];
         
-        _zdlLabel.text = [NSString stringWithFormat:@"战斗力: %ld" , SM.zdl];
+        _zdlLabel.text = [NSString stringWithFormat:@"战斗力: %ld" , (long)SM.zdl];
         
     } else {
         

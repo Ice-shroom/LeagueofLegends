@@ -2,7 +2,7 @@
 //  TabView.m
 // 
 //
-//  Created by 李响 on 15/6/30.
+//  Created by 张展 on 15/6/30.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -15,7 +15,11 @@
 
 #define SCROLL_HEIGHT CGRectGetHeight(self.scrollView.frame)
 
-#define BUTTONTAG 520
+@interface TabView ()
+
+@property (nonatomic , retain ) NSMutableArray *buttonArray;//按钮数组
+
+@end
 
 @implementation TabView
 
@@ -58,6 +62,45 @@
         
     }
     return self;
+}
+
+-(void)layoutSubviews{
+    
+    [super layoutSubviews];
+    
+    //设置滑动视图frame
+    
+    _scrollView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    
+    //获取数组元素个数
+    
+    NSInteger count = self.dataArray.count;
+    
+    //根据视图大小 和 标签个数 计算其占用宽度 (标签个数大于6个 平均宽度按6个计算)
+    
+    CGFloat button_width = SCROLL_WIDTH / (count <=6 ? count : 6);
+    
+    //循环遍历button 设置其frame尺寸
+    
+    NSInteger index = 0;
+    
+    for (UIButton * button in self.buttonArray) {
+        
+        button.frame = CGRectMake(button_width * index, _scrollView.frame.origin.y , button_width , SCROLL_HEIGHT);
+        
+        index ++;
+    
+    }
+    
+    //设置滑动视图内容大小
+    
+    self.scrollView.contentSize = CGSizeMake(button_width * count , SCROLL_HEIGHT);
+    
+    //设置下划线视图frame
+    
+    self.lineView.frame = CGRectMake(button_width * _selectIndex , SCROLL_HEIGHT - 3 , button_width, 3);
+    
+    
 }
 
 //获取数据 并计算
@@ -115,7 +158,7 @@
         
         //初始化BUTTON
         
-        [self initButton:CGRectMake(button_width * i, self.scrollView.frame.origin.y, button_width, SCROLL_HEIGHT) title:self.dataArray[i] tag: BUTTONTAG + i ];
+        [self initButton:CGRectMake(button_width * i, self.scrollView.frame.origin.y, button_width, SCROLL_HEIGHT) title:self.dataArray[i]];
         
     }
     
@@ -136,13 +179,11 @@
 
 //初始化BUTTON
 
-- (void)initButton:(CGRect)frame title:(NSString *)title tag:(NSInteger)tag{
+- (void)initButton:(CGRect)frame title:(NSString *)title{
     
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     
     button.frame = frame;
-    
-    button.tag = tag;
     
     button.autoresizesSubviews = YES;
     
@@ -150,23 +191,25 @@
     
     button.titleLabel.font = [UIFont systemFontOfSize:14];
     
-    //判断是否为指定选中下标
     
-    if (tag- BUTTONTAG == self.selectIndex) {
-        
-        [self buttonClickStyle:button];
-        
-    }else{
-        
-        [self buttonDefaultStyle:button];
-        
-    }
     
     button.backgroundColor = [UIColor colorWithRed:255/255.0 green:255/255.0 blue:255/255.0 alpha:1];
     
     [button addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
     
     [self.scrollView insertSubview:button belowSubview:self.lineView];
+    
+    [self.buttonArray addObject:button];
+    
+    if ([self.buttonArray indexOfObject:button] == _selectIndex) {
+        
+        [self buttonClickStyle:button];//设置为选中样式
+        
+    } else {
+        
+        [self buttonDefaultStyle:button];//设置为默认样式
+        
+    }
     
 }
 //BUTTON默认样式
@@ -193,17 +236,15 @@
     
     [self buttonClickStyle:sender];
     
+    _selectIndex = [self.buttonArray indexOfObject:sender];
+    
     //下划线移动
     
     [self lineViewMobile:sender.frame.origin.x];
     
     //除点击的button外 其他button全部恢复默认样式
     
-    for (int i= 0; i < self.dataArray.count; i++) {
-        
-        NSInteger tag = BUTTONTAG + i;
-        
-        UIButton *button = (UIButton *)[self viewWithTag:tag];
+    for (UIButton *button in self.buttonArray) {
         
         if (button != sender) {
             
@@ -213,12 +254,12 @@
             
             //调用Block 传入选中的下标
             
-            self.returnIndex(i);
+            self.returnIndex(_selectIndex);
             
         }
         
     }
-    
+
 }
 
 //下划线视图移动
@@ -231,7 +272,7 @@
     
     //设置动画时长
     
-    [UIView setAnimationDuration:0.3];
+    [UIView setAnimationDuration:0.2f];
     
     //设置下划线视图frame
     
@@ -253,9 +294,9 @@
         
     }
     
-    //获取对应tag值得button
+    //获取对应下标得button
     
-    UIButton *button = (UIButton *)[ self viewWithTag:BUTTONTAG + selectIndex ];
+    UIButton *button = [self.buttonArray objectAtIndex:selectIndex];
     
     //调用点击button事件方法实现对应的效果
     
@@ -298,6 +339,17 @@
     
 }
 
+-(NSMutableArray *)buttonArray{
+    
+    if (_buttonArray == nil) {
+        
+        _buttonArray = [[NSMutableArray alloc]init];
+        
+    }
+    
+    return _buttonArray;
+    
+}
 
 
 -(void)dealloc {
@@ -307,6 +359,8 @@
     [_lineView  release];
     
     [_dataArray release];
+    
+    [_buttonArray release];
     
     [super dealloc];
     

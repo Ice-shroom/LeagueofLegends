@@ -2,7 +2,7 @@
 //  SummonerListViewController.m
 //  Union
 //
-//  Created by 李响 on 15/7/20.
+//  Created by 张展 on 15/7/20.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -67,14 +67,6 @@
     // Do any additional setup after loading the view.
     
     self.title = @"召唤师列表";
-    
-    //添加导航栏左按钮
-    
-    UIBarButtonItem *leftBarButton = [[UIBarButtonItem alloc]initWithImage:[[UIImage imageNamed:@"iconfont-fanhui"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStyleDone target:self action:@selector(leftBarButtonAction:)];
-    
-    leftBarButton.tintColor = [UIColor whiteColor];
-    
-    self.navigationItem.leftBarButtonItem = leftBarButton;
     
     //添加导航栏右按钮
     
@@ -304,18 +296,11 @@
     self.summonerDetailsVC.hidesBottomBarWhenPushed = YES;//隐藏tabbar
     
     [self.navigationController pushViewController:self.summonerDetailsVC animated:YES];
-
-}
-
-
-
-#pragma mark ---leftBarButtonAction
-
-- (void)leftBarButtonAction:(UIBarButtonItem *)sender{
-    
-    [self.navigationController popViewControllerAnimated:YES];
     
 }
+
+
+
 
 #pragma mark ---rightBarButtonAction
 

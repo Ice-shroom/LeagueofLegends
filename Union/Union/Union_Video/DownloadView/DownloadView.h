@@ -7,7 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+
 typedef void (^DownLoadBlock) ();
+
 @interface DownloadView : UIView
 
 @property (nonatomic ,assign) CGPoint startPoint;//触摸起始点

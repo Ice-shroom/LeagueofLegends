@@ -1,8 +1,8 @@
 //
-//  Union_News_Video_View.m
+//  Union_News_TableView_View.m
 //  Union
 //
-//  Created by lanou3g on 15/7/20.
+//  Created by 张展 on 15/7/23.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -27,6 +27,8 @@
 #import "PictureCycleModel.h"
 
 #import "PictureCycleView.h"
+
+#import "DataCache.h"
 
 
 @interface Union_News_TableView_View ()<UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate,GearPoweredDelegate>
@@ -196,9 +198,9 @@
         
         self.tableView.contentOffset = CGPointMake(0, 0);
         
-        self.gearPowered.url = [NSURL URLWithString:[[NSString stringWithFormat:self.urlstring ,self.page] URLEncodedString] ];
+        self.gearPowered.url = [NSURL URLWithString:[[NSString stringWithFormat:_urlstring ,self.page] URLEncodedString] ];
         
-        self.gearPowered.bottomUrl = [NSURL URLWithString:[[NSString stringWithFormat:self.urlstring ,self.page] URLEncodedString] ];
+        self.gearPowered.bottomUrl = [NSURL URLWithString:[[NSString stringWithFormat:_urlstring ,self.page] URLEncodedString] ];
         
     }
   
@@ -223,13 +225,35 @@
 
 - (void)loadData{
     
+    //查询本地缓存 指定数据名 和 分组名
+    
+    id caCheData = [[DataCache shareDataCache] getDataForDocumentWithDataName:[NSString stringWithFormat:@"%@%ld",@"NewsListData",self.scrollPage] Classify:@"News"];
+    
+    if (caCheData == nil) {
+        
+        //显示加载视图
+        
+        self.loadingView.hidden = NO;
+        
+    } else {
+        
+        //解析前清空数据源数组
+        
+        [self.dataArray removeAllObjects];
+        
+        [self.tableView reloadData];
+        
+        //解析数据
+        
+        [self JSONSerializationWithData:caCheData];
+        
+    }
+
+    
+    
     //非底部刷新
     
     self.isBottomLoading = NO;
-    
-    //显示加载视图
-    
-    self.loadingView.hidden = NO;
     
     //隐藏重新加载提示视图
     
@@ -252,15 +276,15 @@
         
         Self.reloadImageView.hidden = YES;
         
-        //解析前清空数据源数组
-        
-        [Self.dataArray removeAllObjects];
-        
-        [Self.tableView reloadData];
-        
         //调用数据解析方法
         
         if (responseObject != nil) {
+            
+            //解析前清空数据源数组
+            
+            [self.dataArray removeAllObjects];
+            
+            [self.tableView reloadData];
             
             //设置表视图样式有cell分隔线
             
@@ -268,11 +292,19 @@
             
             [Self JSONSerializationWithData:responseObject];
             
+            //将数据缓存到本地 指定数据名 和分组名
+            
+            [[DataCache shareDataCache] saveDataForDocumentWithData:responseObject DataName:[NSString stringWithFormat:@"%@%ld",@"NewsListData",self.scrollPage]  Classify:@"News"];
+            
         } else {
             
-            //显示重新加载提示视图
-            
-            Self.reloadImageView.hidden = NO;
+            if (Self.dataArray.count == 0) {
+                
+                //显示重新加载提示视图
+                
+                Self.reloadImageView.hidden = NO;
+
+            }
             
         }
         
@@ -282,23 +314,25 @@
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
-        //清空数据源数组
+        if (Self.dataArray.count == 0) {
         
-        [Self.dataArray removeAllObjects];
-        
-        [Self.tableView reloadData];
-        
-        //将表视图顶部视图设为nil 不显示图片轮播视图
-        
-        self.tableView.tableHeaderView = nil;
-        
-        //显示重新加载提示视图
-        
-        Self.reloadImageView.hidden = NO;
-        
-        //隐藏加载视图
-        
-        Self.loadingView.hidden = YES;
+            //将表视图顶部视图设为nil 不显示图片轮播视图
+            
+            self.tableView.tableHeaderView = nil;
+            
+            //显示重新加载提示视图
+            
+            Self.reloadImageView.hidden = NO;
+            
+            //隐藏加载视图
+            
+            Self.loadingView.hidden = YES;
+            
+        } else {
+            
+            [UIView addLXNotifierWithText:@"加载失败 快去看看网络去哪了" dismissAutomatically:YES];
+            
+        }
         
     }];
 
@@ -327,26 +361,36 @@
                 
                 NSArray *tempPictureArray = [dic objectForKey:@"headerline"];
                 
-                for (NSDictionary *tempDic in tempPictureArray) {
+                if (tempPictureArray.count > 1) {
                     
-                    PictureCycleModel *model = [[PictureCycleModel alloc]init];
+                    for (NSDictionary *tempDic in tempPictureArray) {
+                        
+                        PictureCycleModel *model = [[PictureCycleModel alloc]init];
+                        
+                        model.pid = [[tempDic valueForKey:@"id"] retain];
+                        
+                        model.photoUrl = [[tempDic valueForKey:@"photo"] retain];
+                        
+                        [self.pictureArray addObject:model];
+                        
+                    }
                     
-                    model.pid = [[tempDic valueForKey:@"id"] retain];
+                    //将图片轮播视图添加到表视图顶部视图上 显示图片轮播视图
                     
-                    model.photoUrl = [[tempDic valueForKey:@"photo"] retain];
+                    self.tableView.tableHeaderView = self.pictureCycleView;
                     
-                    [self.pictureArray addObject:model];
+                    //为图片轮播视图添加数据数组
+                    
+                    self.pictureCycleView.dataArray = self.pictureArray;
+                    
+                    //发送通知 传递轮播图数据
+                    
+                    NSDictionary * dic = @{@"pictureArray":self.pictureArray};
+                    
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"PictureDataArray" object:self userInfo:dic];
+
                     
                 }
-                
-                //将图片轮播视图添加到表视图顶部视图上 显示图片轮播视图
-                
-                self.tableView.tableHeaderView = self.pictureCycleView;
-                
-                //为图片轮播视图添加数据数组
-                
-                self.pictureCycleView.dataArray = self.pictureArray;
-                
                 
                 
             } else {
@@ -411,6 +455,7 @@
     cell.model = self.dataArray[indexPath.row];
     
     return cell;
+    
 }
 
 //点击cell push到的视图
@@ -419,9 +464,23 @@
     
     Union_News_TableView_Model *model =[self.dataArray objectAtIndex:indexPath.row];
     
-    if (indexPath.row  == 0 && self.tableView.tableHeaderView != nil) {
+    if (indexPath.row  == 0 && self.tableView.tableHeaderView != nil && [model.type isEqualToString:@"topic"]) {
         
-        self.topicBlock(News_TopicURL,model.type);
+        NSString *topicId = nil;
+        
+        NSArray *tempArray = [model.destUrl componentsSeparatedByString:@"&"];
+        
+        for (NSString *tempItem in tempArray) {
+            
+            if ([tempItem hasPrefix:@"topicId="]) {
+                
+                topicId = [tempItem substringFromIndex:8];
+                
+            }
+            
+        }
+        
+        self.topicBlock([NSString stringWithFormat:News_TopicURL , topicId ],model.type);
         
     }else{
         
@@ -555,9 +614,11 @@
         
         _reloadImageView.center = CGPointMake(CGRectGetWidth(self.frame) / 2 , CGRectGetHeight(self.frame) / 2);
         
-        _reloadImageView.image = [UIImage imageNamed:@""];
+        _reloadImageView.image = [[UIImage imageNamed:@"reloadImage"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         
-        _reloadImageView.backgroundColor = [UIColor lightGrayColor];
+        _reloadImageView.tintColor = [UIColor lightGrayColor];
+        
+        _reloadImageView.backgroundColor = [UIColor clearColor];
         
         [_reloadImageView addGestureRecognizer:reloadImageViewTap];
         

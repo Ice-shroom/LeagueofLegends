@@ -2,7 +2,7 @@
 //  MyHeroTableViewCell.m
 //  Union
 //
-//  Created by 李响 on 15/7/19.
+//  Created by 张展 on 15/7/19.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
@@ -71,6 +71,10 @@
         //初始化英雄头像
         
         _picImageView = [[UIImageView alloc]initWithFrame:CGRectMake(10, 10, 60, 60)];
+        
+        _picImageView.image = [[UIImage imageNamed:@""] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        
+        _picImageView.tintColor = [UIColor lightGrayColor];
         
         [self addSubview:_picImageView];
         
@@ -169,7 +173,7 @@
         
         //SDWebImage 异步请求加载英雄图片 <根据英雄英文名字为参数>
         
-        [_picImageView sd_setImageWithURL:[NSURL URLWithString:picURL] placeholderImage:[UIImage imageNamed:@""]];
+        [_picImageView sd_setImageWithURL:[NSURL URLWithString:picURL] placeholderImage:[[UIImage imageNamed:@""] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         
         //添加英雄标题
         
