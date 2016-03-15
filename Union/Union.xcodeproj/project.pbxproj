@@ -2822,7 +2822,7 @@
 				TargetAttributes = {
 					9B00F52F1B4161DC00597830 = {
 						CreatedOnToolsVersion = 6.3.2;
-						DevelopmentTeam = FKL55V49K8;
+						DevelopmentTeam = RE65C69GHP;
 					};
 					9B00F5441B4161DC00597830 = {
 						CreatedOnToolsVersion = 6.3.2;
@@ -3363,6 +3363,7 @@
 				INFOPLIST_FILE = Union/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = ren.harris;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3382,6 +3383,7 @@
 				INFOPLIST_FILE = Union/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = ren.harris;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
