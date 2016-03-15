@@ -2,7 +2,7 @@
 //  Union_News_Headlines_TableViewCell.m
 //  Union
 //
-//  Created by 张展 on 15/7/23.
+//  Created by HarrisHan on 15/7/23.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 #import "Union_News_TableViewCell.h"

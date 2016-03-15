@@ -2,7 +2,7 @@
 //  NSString+GetWidthHeight.h
 //  
 //
-//  Created by 张展 on 15/6/9.
+//  Created by HarrisHan on 15/6/9.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 

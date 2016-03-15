@@ -2,8 +2,8 @@
 //  LXCollectionViewFlowLayout.h
 //  
 //
-//  Created by 张展 on 15/6/6.
-//  Copyright (c) 2015年 张展. All rights reserved.
+//  Created by HarrisHan on 15/6/6.
+//  Copyright (c) 2015年 HarrisHan. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

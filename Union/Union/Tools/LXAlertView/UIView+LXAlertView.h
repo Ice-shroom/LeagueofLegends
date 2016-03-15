@@ -2,7 +2,7 @@
 //  UIView+MJAlertView.h
 //  LXAlertView
 //
-//  Created by 张展 on 2/16/15.
+//  Created by HarrisHan on 2/16/15.
 //  Copyright (c) 2015 Persource. All rights reserved.
 //
 

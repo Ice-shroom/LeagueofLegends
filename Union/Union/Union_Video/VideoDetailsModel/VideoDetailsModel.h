@@ -2,7 +2,7 @@
 //  VideoDetailsModel.h
 //  Union
 //
-//  Created by 张展 on 15/7/23.
+//  Created by HarrisHan on 15/7/23.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 

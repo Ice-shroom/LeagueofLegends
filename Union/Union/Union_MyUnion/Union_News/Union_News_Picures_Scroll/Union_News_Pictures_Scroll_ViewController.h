@@ -2,7 +2,7 @@
 //  Union_News_Pictures_Scroll_ViewController.h
 //  Union
 //
-//  Created by 张展 on 15/7/27.
+//  Created by HarrisHan on 15/7/27.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 

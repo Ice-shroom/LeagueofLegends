@@ -2,7 +2,7 @@
 //  SumAbilityModel.m
 //  Union
 //
-//  Created by 张展 on 15/8/15.
+//  Created by HarrisHan on 15/8/15.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 

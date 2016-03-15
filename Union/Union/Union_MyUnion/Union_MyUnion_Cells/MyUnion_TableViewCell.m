@@ -2,7 +2,7 @@
 //  MyUnion_TableViewCell.m
 //  Union
 //
-//  Created by 张展 on 15/8/20.
+//  Created by HarrisHan on 15/8/20.
 //  Copyright (c) 2015年 Lee. All rights reserved.
 //
 
